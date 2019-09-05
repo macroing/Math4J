@@ -435,6 +435,17 @@ public final class MathD {
 	}
 	
 	/**
+	 * Returns the remainder of {@code x} and {@code y}.
+	 * 
+	 * @param x the left hand side of the remainder operation
+	 * @param y the right hand side of the remainder operation
+	 * @return the remainder of {@code x} and {@code y}
+	 */
+	public static double remainder(final double x, final double y) {
+		return x - (int)(x / y) * y;
+	}
+	
+	/**
 	 * Returns a saturated (or clamped) value based on {@code value}.
 	 * <p>
 	 * Calling this method is equivalent to the following:
