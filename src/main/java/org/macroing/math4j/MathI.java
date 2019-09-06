@@ -119,4 +119,77 @@ public final class MathI {
 	public static int min(final int a, final int b, final int c) {
 		return min(min(a, b), c);
 	}
+	
+	/**
+	 * Performs a modulo operation on {@code value} given {@code maximumValue}.
+	 * <p>
+	 * Returns {@code value} or a wrapped around version of it.
+	 * <p>
+	 * The modulo operation performed by this method differs slightly from the modulo operator in Java.
+	 * <p>
+	 * If {@code value} is positive, the following occurs:
+	 * <pre>
+	 * {@code
+	 * int changedValue = value % maximumValue;
+	 * }
+	 * </pre>
+	 * If {@code value} is negative, the following occurs:
+	 * <pre>
+	 * {@code
+	 * int changedValue = (value % maximumValue + maximumValue) % maximumValue;
+	 * }
+	 * </pre>
+	 * 
+	 * @param value an {@code int} value
+	 * @param maximumValue the maximum value
+	 * @return {@code value} or a wrapped around version of it
+	 */
+	public static int modulo(final int value, final int maximumValue) {
+		return value < 0 ? (value % maximumValue + maximumValue) % maximumValue : value % maximumValue;
+	}
+	
+	/**
+	 * Returns a saturated (or clamped) value based on {@code value}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * MathI.saturate(value, 0, 255);
+	 * }
+	 * </pre>
+	 * 
+	 * @param value the value to saturate (or clamp)
+	 * @return a saturated (or clamped) value based on {@code value}
+	 */
+	public static int saturate(final int value) {
+		return saturate(value, 0, 255);
+	}
+	
+	/**
+	 * Returns a saturated (or clamped) value based on {@code value}.
+	 * <p>
+	 * If {@code value} is less than {@code min(edgeA, edgeB)}, {@code min(edgeA, edgeB)} will be returned. If {@code value} is greater than {@code max(edgeA, edgeB)}, {@code max(edgeA, edgeB)} will be returned. Otherwise {@code value} will be
+	 * returned.
+	 * 
+	 * @param value the value to saturate (or clamp)
+	 * @param edgeA the minimum or maximum value
+	 * @param edgeB the maximum or minimum value
+	 * @return a saturated (or clamped) value based on {@code value}
+	 */
+	public static int saturate(final int value, final int edgeA, final int edgeB) {
+		final int minimumValue = edgeA < edgeB ? edgeA : edgeB;
+		final int maximumValue = edgeA > edgeB ? edgeA : edgeB;
+		
+		return value < minimumValue ? minimumValue : value > maximumValue ? maximumValue : value;
+	}
+	
+	/**
+	 * Returns an {@code int} representation of a {@code float} value.
+	 * 
+	 * @param value a {@code float} value
+	 * @return an {@code int} representation of a {@code float} value
+	 */
+	public static int toInt(final float value) {
+		return (int)(value);
+	}
 }

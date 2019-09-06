@@ -571,6 +571,26 @@ public final class MathF {
 	}
 	
 	/**
+	 * Returns a {@code float} representation of a {@code double} value.
+	 * 
+	 * @param value a {@code double} value
+	 * @return a {@code float} representation of a {@code double} value
+	 */
+	public static float toFloat(final double value) {
+		return (float)(value);
+	}
+	
+	/**
+	 * Returns a {@code float} representation of an {@code int} value.
+	 * 
+	 * @param value an {@code int} value
+	 * @return a {@code float} representation of an {@code int} value
+	 */
+	public static float toFloat(final int value) {
+		return value;
+	}
+	
+	/**
 	 * Returns an approximately equivalent angle measured in radians from an angle measured in degrees.
 	 * <p>
 	 * The conversion from degrees to radians is generally inexact.
