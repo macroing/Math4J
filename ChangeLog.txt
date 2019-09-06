@@ -1,3 +1,11 @@
+2019-09-06  Jörgen Lundgren  <joergen.lundgren@macroing.org>
+
+	* ADD:		Add implementations of BoundingVolume3D and BoundingVolume3F in Sphere3D and Sphere3F.
+	* ADD:		Add two new interfaces BoundingVolume3D and BoundingVolume3F.
+	* ADD:		Add implementations of Shape3D and Shape3F, which are Plane3D, Plane3F, Sphere3D and Sphere3F.
+	* ADD:		Add two new interfaces Shape3D and Shape3F.
+	* ADD:		Add two new classes Ray3D and Ray3F.
+
 2019-09-05  Jörgen Lundgren  <joergen.lundgren@macroing.org>
 
 	* ADD:		Add the entire library.
