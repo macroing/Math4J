@@ -19,6 +19,7 @@
 package org.macroing.math4j;
 
 import static org.macroing.math4j.MathF.PI;
+import static org.macroing.math4j.MathF.pow;
 import static org.macroing.math4j.MathF.sqrt;
 
 import java.util.Objects;
@@ -26,12 +27,14 @@ import java.util.Objects;
 /**
  * A {@code Sphere3F} denotes a sphere that uses the data type {@code float}.
  * <p>
+ * This {@code Sphere3F} class implements both {@link BoundingVolume3F} and {@link Shape3F}. So it can be used as a bounding volume and a geometric shape.
+ * <p>
  * This class is immutable and therefore thread-safe.
  * 
  * @since 1.0.0
  * @author J&#246;rgen Lundgren
  */
-public final class Sphere3F implements Shape3F {
+public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	private static final float EPSILON = 0.0001F;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +110,70 @@ public final class Sphere3F implements Shape3F {
 	 * 
 	 * @return the center of this {@code Sphere3F} instance
 	 */
+	@Override
 	public Point3F getCenter() {
 		return this.center;
+	}
+	
+	/**
+	 * Returns a {@link Point3F} instance that represents the closest point to {@code p} and is contained inside this {@code Sphere3F} instance.
+	 * <p>
+	 * If {@code p} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param p a {@code Point3F} instance
+	 * @return a {@code Point3F} instance that represents the closest point to {@code p} and is contained inside this {@code Sphere3F} instance
+	 * @throws NullPointerException thrown if, and only if, {@code p} is {@code null}
+	 */
+	@Override
+	public Point3F getClosestPointTo(final Point3F p) {
+		final Point3F center = this.center;
+		
+		final float radius = this.radius;
+		
+		final Vector3F direction = Vector3F.direction(center, p).normalize();
+		
+		final Point3F surfaceIntersectionPoint = center.add(direction, radius);
+		
+		final float distanceToSurfaceIntersectionPointSquared = center.distanceToSquared(surfaceIntersectionPoint);
+		final float distanceToPSquared = center.distanceToSquared(p);
+		
+		return distanceToSurfaceIntersectionPointSquared <= distanceToPSquared ? surfaceIntersectionPoint : p;
+	}
+	
+	/**
+	 * Returns a {@link Point3F} with the greatest X-, Y- and Z-coordinates that is contained in this {@code Sphere3F} instance.
+	 * 
+	 * @return a {@code Point3F} with the greatest X-, Y- and Z-coordinates that is contained in this {@code Sphere3F} instance
+	 */
+	@Override
+	public Point3F getMaximum() {
+		return new Point3F(this.center.x + this.radius, this.center.y + this.radius, this.center.z + this.radius);
+	}
+	
+	/**
+	 * Returns a {@link Point3F} with the smallest X-, Y- and Z-coordinates that is contained in this {@code Sphere3F} instance.
+	 * 
+	 * @return a {@code Point3F} with the smallest X-, Y- and Z-coordinates that is contained in this {@code Sphere3F} instance
+	 */
+	@Override
+	public Point3F getMinimum() {
+		return new Point3F(this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
+	}
+	
+	/**
+	 * Performs a transformation.
+	 * <p>
+	 * Returns a new {@code Sphere3F} instance with the result of the transformation.
+	 * <p>
+	 * If {@code m} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param m the {@link Matrix44F} instance to perform the transformation with
+	 * @return a new {@code Sphere3F} instance with the result of the transformation
+	 * @throws NullPointerException thrown if, and only if, {@code m} is {@code null}
+	 */
+	@Override
+	public Sphere3F transform(final Matrix44F m) {
+		return new Sphere3F(this.center.transform(m), this.radius);
 	}
 	
 	/**
@@ -137,6 +202,20 @@ public final class Sphere3F implements Shape3F {
 	}
 	
 	/**
+	 * Returns {@code true} if, and only if, {@code p} is contained inside this {@code Sphere3F} instance, {@code false} otherwise.
+	 * <p>
+	 * If {@code p} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param p a {@link Point3F} instance
+	 * @return {@code true} if, and only if, {@code p} is contained inside this {@code Sphere3F} instance, {@code false} otherwise
+	 * @throws NullPointerException thrown if, and only if, {@code p} is {@code null}
+	 */
+	@Override
+	public boolean contains(final Point3F p) {
+		return this.center.distanceToSquared(p) < this.radius * this.radius;
+	}
+	
+	/**
 	 * Compares {@code object} to this {@code Sphere3F} instance for equality.
 	 * <p>
 	 * Returns {@code true} if, and only if, {@code object} is an instance of {@code Sphere3F}, and their respective values are equal, {@code false} otherwise.
@@ -157,6 +236,38 @@ public final class Sphere3F implements Shape3F {
 		} else {
 			return true;
 		}
+	}
+	
+	/**
+	 * Performs an intersection test between {@code boundingVolume} and this {@code Sphere3F} instance.
+	 * <p>
+	 * Returns {@code true} if, and only if, {@code boundingVolume} intersects this {@code Sphere3F} instance, {@code false} otherwise.
+	 * <p>
+	 * If {@code boundingVolume} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param boundingVolume the {@code BoundingVolume3F} to perform an intersection test against this {@code Sphere3F} instance
+	 * @return {@code true} if, and only if, {@code boundingVolume} intersects this {@code Sphere3F} instance, {@code false} otherwise
+	 * @throws NullPointerException thrown if, and only if, {@code boundingVolume} is {@code null}
+	 */
+	@Override
+	public boolean intersects(final BoundingVolume3F boundingVolume) {
+		return contains(boundingVolume.getClosestPointTo(this.center));
+	}
+	
+	/**
+	 * Performs an intersection test between {@code ray} and this {@code Sphere3F} instance.
+	 * <p>
+	 * Returns {@code true} if, and only if, {@code ray} intersects this {@code Sphere3F} instance, {@code false} otherwise.
+	 * <p>
+	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code Sphere3F} instance
+	 * @return {@code true} if, and only if, {@code ray} intersects this {@code Sphere3F} instance, {@code false} otherwise
+	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
+	 */
+	@Override
+	public boolean intersects(final Ray3F ray) {
+		return !Float.isNaN(intersection(ray));
 	}
 	
 	/**
@@ -191,8 +302,19 @@ public final class Sphere3F implements Shape3F {
 	 * 
 	 * @return the surface area of this {@code Sphere3F} instance
 	 */
+	@Override
 	public float getSurfaceArea() {
 		return 4.0F * PI * getRadiusSquared();
+	}
+	
+	/**
+	 * Returns the volume of this {@code Sphere3F} instance.
+	 * 
+	 * @return the volume of this {@code Sphere3F} instance
+	 */
+	@Override
+	public float getVolume() {
+		return 4.0F / 3.0F * PI * pow(this.radius, 3.0F);
 	}
 	
 	/**
