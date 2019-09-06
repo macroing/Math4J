@@ -58,6 +58,7 @@
 		
 		<!--Copy files.-->
 		<copy todir="${project.directory.distribution.current}">
+			<fileset dir="." includes="ChangeLog.txt"/>
 			<fileset dir="." includes="COPYING"/>
 			<fileset dir="." includes="COPYING.LESSER"/>
 			<fileset dir="." includes="README.md"/>
