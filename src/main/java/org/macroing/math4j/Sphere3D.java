@@ -18,6 +18,7 @@
  */
 package org.macroing.math4j;
 
+import static org.macroing.math4j.MathD.PI;
 import static org.macroing.math4j.MathD.sqrt;
 
 import java.util.Objects;
@@ -35,22 +36,22 @@ public final class Sphere3D implements Shape3D {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private final Point3D position;
+	private final Point3D center;
 	private final double radius;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * Constructs a new {@code Sphere3D} instance given its position and radius.
+	 * Constructs a new {@code Sphere3D} instance given its center and radius.
 	 * <p>
-	 * If {@code position} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * If {@code center} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param position the position of the {@code Sphere3D} instance
+	 * @param center the center of the {@code Sphere3D} instance
 	 * @param radius the radius of the {@code Sphere3D} instance
-	 * @throws NullPointerException thrown if, and only if, {@code position} is {@code null}
+	 * @throws NullPointerException thrown if, and only if, {@code center} is {@code null}
 	 */
-	public Sphere3D(final Point3D position, final double radius) {
-		this.position = Objects.requireNonNull(position, "position == null");
+	public Sphere3D(final Point3D center, final double radius) {
+		this.center = Objects.requireNonNull(center, "center == null");
 		this.radius = radius;
 	}
 	
@@ -102,12 +103,12 @@ public final class Sphere3D implements Shape3D {
 	}
 	
 	/**
-	 * Returns the position of this {@code Sphere3D} instance.
+	 * Returns the center of this {@code Sphere3D} instance.
 	 * 
-	 * @return the position of this {@code Sphere3D} instance
+	 * @return the center of this {@code Sphere3D} instance
 	 */
-	public Point3D getPosition() {
-		return this.position;
+	public Point3D getCenter() {
+		return this.center;
 	}
 	
 	/**
@@ -117,7 +118,7 @@ public final class Sphere3D implements Shape3D {
 	 */
 	@Override
 	public String toString() {
-		return String.format("new Sphere3D(%s, %s)", this.position, Double.toString(this.radius));
+		return String.format("new Sphere3D(%s, %s)", this.center, Double.toString(this.radius));
 	}
 	
 	/**
@@ -132,7 +133,7 @@ public final class Sphere3D implements Shape3D {
 	 */
 	@Override
 	public Vector3D calculateSurfaceNormal(final Ray3D ray, final double t) {
-		return Vector3D.direction(this.position, calculateSurfaceIntersectionPoint(ray, t)).normalize();
+		return Vector3D.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
 	}
 	
 	/**
@@ -149,7 +150,7 @@ public final class Sphere3D implements Shape3D {
 			return true;
 		} else if(!(object instanceof Sphere3D)) {
 			return false;
-		} else if(!Objects.equals(this.position, Sphere3D.class.cast(object).position)) {
+		} else if(!Objects.equals(this.center, Sphere3D.class.cast(object).center)) {
 			return false;
 		} else if(!MathD.equals(this.radius, Sphere3D.class.cast(object).radius)) {
 			return false;
@@ -159,12 +160,39 @@ public final class Sphere3D implements Shape3D {
 	}
 	
 	/**
+	 * Returns the diameter of this {@code Sphere3D} instance.
+	 * 
+	 * @return the diameter of this {@code Sphere3D} instance
+	 */
+	public double getDiameter() {
+		return this.radius * 2.0D;
+	}
+	
+	/**
 	 * Returns the radius of this {@code Sphere3D} instance.
 	 * 
 	 * @return the radius of this {@code Sphere3D} instance
 	 */
 	public double getRadius() {
 		return this.radius;
+	}
+	
+	/**
+	 * Returns the squared radius of this {@code Sphere3D} instance.
+	 * 
+	 * @return the squared radius of this {@code Sphere3D} instance
+	 */
+	public double getRadiusSquared() {
+		return this.radius * this.radius;
+	}
+	
+	/**
+	 * Returns the surface area of this {@code Sphere3D} instance.
+	 * 
+	 * @return the surface area of this {@code Sphere3D} instance
+	 */
+	public double getSurfaceArea() {
+		return 4.0D * PI * (this.radius * this.radius);
 	}
 	
 	/**
@@ -181,23 +209,23 @@ public final class Sphere3D implements Shape3D {
 	@Override
 	public double intersection(final Ray3D ray) {
 		final Point3D origin = ray.origin;
-		final Point3D position = this.position;
+		final Point3D center = this.center;
 		
 		final Vector3D direction = ray.direction;
-		final Vector3D originToPosition = Vector3D.direction(origin, position);
+		final Vector3D originToCenter = Vector3D.direction(origin, center);
 		
-		final double originToPositionDotDirection = originToPosition.dotProduct(direction);
-		final double originToPositionDotDirectionSquared = originToPositionDotDirection * originToPositionDotDirection;
-		final double originToPositionLengthSquared = originToPosition.lengthSquared();
+		final double originToCenterDotDirection = originToCenter.dotProduct(direction);
+		final double originToCenterDotDirectionSquared = originToCenterDotDirection * originToCenterDotDirection;
+		final double originToCenterLengthSquared = originToCenter.lengthSquared();
 		final double radius = this.radius;
 		final double radiusSquared = radius * radius;
-		final double determinantSquared = originToPositionDotDirectionSquared - originToPositionLengthSquared + radiusSquared;
+		final double determinantSquared = originToCenterDotDirectionSquared - originToCenterLengthSquared + radiusSquared;
 		
 		if(determinantSquared >= 0.0D) {
 			final double determinant = sqrt(determinantSquared);
 			
-			final double t0 = originToPositionDotDirection - determinant;
-			final double t1 = originToPositionDotDirection + determinant;
+			final double t0 = originToCenterDotDirection - determinant;
+			final double t1 = originToCenterDotDirection + determinant;
 			
 			if(t0 > EPSILON) {
 				return t0;
@@ -218,6 +246,6 @@ public final class Sphere3D implements Shape3D {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.position, Double.valueOf(this.radius));
+		return Objects.hash(this.center, Double.valueOf(this.radius));
 	}
 }

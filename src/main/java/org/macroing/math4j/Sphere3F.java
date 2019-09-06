@@ -18,6 +18,7 @@
  */
 package org.macroing.math4j;
 
+import static org.macroing.math4j.MathF.PI;
 import static org.macroing.math4j.MathF.sqrt;
 
 import java.util.Objects;
@@ -35,22 +36,22 @@ public final class Sphere3F implements Shape3F {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private final Point3F position;
+	private final Point3F center;
 	private final float radius;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * Constructs a new {@code Sphere3F} instance given its position and radius.
+	 * Constructs a new {@code Sphere3F} instance given its center and radius.
 	 * <p>
-	 * If {@code position} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * If {@code center} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param position the position of the {@code Sphere3F} instance
+	 * @param center the center of the {@code Sphere3F} instance
 	 * @param radius the radius of the {@code Sphere3F} instance
-	 * @throws NullPointerException thrown if, and only if, {@code position} is {@code null}
+	 * @throws NullPointerException thrown if, and only if, {@code center} is {@code null}
 	 */
-	public Sphere3F(final Point3F position, final float radius) {
-		this.position = Objects.requireNonNull(position, "position == null");
+	public Sphere3F(final Point3F center, final float radius) {
+		this.center = Objects.requireNonNull(center, "center == null");
 		this.radius = radius;
 	}
 	
@@ -102,12 +103,12 @@ public final class Sphere3F implements Shape3F {
 	}
 	
 	/**
-	 * Returns the position of this {@code Sphere3F} instance.
+	 * Returns the center of this {@code Sphere3F} instance.
 	 * 
-	 * @return the position of this {@code Sphere3F} instance
+	 * @return the center of this {@code Sphere3F} instance
 	 */
-	public Point3F getPosition() {
-		return this.position;
+	public Point3F getCenter() {
+		return this.center;
 	}
 	
 	/**
@@ -117,7 +118,7 @@ public final class Sphere3F implements Shape3F {
 	 */
 	@Override
 	public String toString() {
-		return String.format("new Sphere3F(%s, %s)", this.position, Float.toString(this.radius));
+		return String.format("new Sphere3F(%s, %s)", this.center, Float.toString(this.radius));
 	}
 	
 	/**
@@ -132,7 +133,7 @@ public final class Sphere3F implements Shape3F {
 	 */
 	@Override
 	public Vector3F calculateSurfaceNormal(final Ray3F ray, final float t) {
-		return Vector3F.direction(this.position, calculateSurfaceIntersectionPoint(ray, t)).normalize();
+		return Vector3F.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
 	}
 	
 	/**
@@ -149,7 +150,7 @@ public final class Sphere3F implements Shape3F {
 			return true;
 		} else if(!(object instanceof Sphere3F)) {
 			return false;
-		} else if(!Objects.equals(this.position, Sphere3F.class.cast(object).position)) {
+		} else if(!Objects.equals(this.center, Sphere3F.class.cast(object).center)) {
 			return false;
 		} else if(!MathF.equals(this.radius, Sphere3F.class.cast(object).radius)) {
 			return false;
@@ -159,12 +160,39 @@ public final class Sphere3F implements Shape3F {
 	}
 	
 	/**
+	 * Returns the diameter of this {@code Sphere3F} instance.
+	 * 
+	 * @return the diameter of this {@code Sphere3F} instance
+	 */
+	public float getDiameter() {
+		return this.radius * 2.0F;
+	}
+	
+	/**
 	 * Returns the radius of this {@code Sphere3F} instance.
 	 * 
 	 * @return the radius of this {@code Sphere3F} instance
 	 */
 	public float getRadius() {
 		return this.radius;
+	}
+	
+	/**
+	 * Returns the squared radius of this {@code Sphere3F} instance.
+	 * 
+	 * @return the squared radius of this {@code Sphere3F} instance
+	 */
+	public float getRadiusSquared() {
+		return this.radius * this.radius;
+	}
+	
+	/**
+	 * Returns the surface area of this {@code Sphere3F} instance.
+	 * 
+	 * @return the surface area of this {@code Sphere3F} instance
+	 */
+	public float getSurfaceArea() {
+		return 4.0F * PI * getRadiusSquared();
 	}
 	
 	/**
@@ -181,23 +209,23 @@ public final class Sphere3F implements Shape3F {
 	@Override
 	public float intersection(final Ray3F ray) {
 		final Point3F origin = ray.origin;
-		final Point3F position = this.position;
+		final Point3F center = this.center;
 		
 		final Vector3F direction = ray.direction;
-		final Vector3F originToPosition = Vector3F.direction(origin, position);
+		final Vector3F originToCenter = Vector3F.direction(origin, center);
 		
-		final float originToPositionDotDirection = originToPosition.dotProduct(direction);
-		final float originToPositionDotDirectionSquared = originToPositionDotDirection * originToPositionDotDirection;
-		final float originToPositionLengthSquared = originToPosition.lengthSquared();
+		final float originToCenterDotDirection = originToCenter.dotProduct(direction);
+		final float originToCenterDotDirectionSquared = originToCenterDotDirection * originToCenterDotDirection;
+		final float originToCenterLengthSquared = originToCenter.lengthSquared();
 		final float radius = this.radius;
 		final float radiusSquared = radius * radius;
-		final float determinantSquared = originToPositionDotDirectionSquared - originToPositionLengthSquared + radiusSquared;
+		final float determinantSquared = originToCenterDotDirectionSquared - originToCenterLengthSquared + radiusSquared;
 		
 		if(determinantSquared >= 0.0F) {
 			final float determinant = sqrt(determinantSquared);
 			
-			final float t0 = originToPositionDotDirection - determinant;
-			final float t1 = originToPositionDotDirection + determinant;
+			final float t0 = originToCenterDotDirection - determinant;
+			final float t1 = originToCenterDotDirection + determinant;
 			
 			if(t0 > EPSILON) {
 				return t0;
@@ -218,6 +246,6 @@ public final class Sphere3F implements Shape3F {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.position, Float.valueOf(this.radius));
+		return Objects.hash(this.center, Float.valueOf(this.radius));
 	}
 }
