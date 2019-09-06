@@ -38,4 +38,85 @@ public final class MathI {
 	private MathI() {
 		
 	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Returns the absolute version of {@code value}.
+	 * <p>
+	 * If the argument is not negative, the argument is returned. If the argument is negative, the negation of the argument is returned.
+	 * <p>
+	 * Note that if the argument is equal to the value of {@code Integer.MIN_VALUE}, the most negative representable {@code int} value, the result is that same value, which is negative.
+	 * 
+	 * @param value an {@code int} value
+	 * @return the absolute version of {@code value}
+	 * @see Math#abs(int)
+	 */
+	public static int abs(final int value) {
+		return Math.abs(value);
+	}
+	
+	/**
+	 * Returns the greater value of {@code a} and {@code b}.
+	 * <p>
+	 * The result is the argument closer to the value of {@code Integer.MAX_VALUE}.
+	 * <p>
+	 * If the arguments have the same value, the result is that same value.
+	 * 
+	 * @param a a value
+	 * @param b a value
+	 * @return the greater value of {@code a} and {@code b}
+	 * @see Math#max(int, int)
+	 */
+	public static int max(final int a, final int b) {
+		return Math.max(a, b);
+	}
+	
+	/**
+	 * Returns the greater value of {@code a}, {@code b} and {@code c}.
+	 * <p>
+	 * The result is the argument closer to the value of {@code Integer.MAX_VALUE}.
+	 * <p>
+	 * If the arguments have the same value, the result is that same value.
+	 * 
+	 * @param a a value
+	 * @param b a value
+	 * @param c a value
+	 * @return the greater value of {@code a}, {@code b} and {@code c}
+	 */
+	public static int max(final int a, final int b, final int c) {
+		return max(max(a, b), c);
+	}
+	
+	/**
+	 * Returns the smaller value of {@code a} and {@code b}.
+	 * <p>
+	 * The result the argument closer to the value of {@code Integer.MIN_VALUE}.
+	 * <p>
+	 * If the arguments have the same value, the result is that same value.
+	 * 
+	 * @param a a value
+	 * @param b a value
+	 * @return the smaller value of {@code a} and {@code b}
+	 * @see Math#min(int, int)
+	 */
+	public static int min(final int a, final int b) {
+		return Math.min(a, b);
+	}
+	
+	/**
+	 * Returns the smaller value of {@code a}, {@code b} and {@code c}.
+	 * <p>
+	 * The result the argument closer to the value of {@code Integer.MIN_VALUE}.
+	 * <p>
+	 * If the arguments have the same value, the result is that same value.
+	 * 
+	 * @param a a value
+	 * @param b a value
+	 * @param c a value
+	 * @return the smaller value of {@code a}, {@code b} and {@code c}
+	 */
+	public static int min(final int a, final int b, final int c) {
+		return min(min(a, b), c);
+	}
 }
