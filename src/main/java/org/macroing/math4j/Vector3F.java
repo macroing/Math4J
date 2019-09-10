@@ -18,6 +18,12 @@
  */
 package org.macroing.math4j;
 
+import static org.macroing.math4j.MathF.PI;
+import static org.macroing.math4j.MathF.PI_MULTIPLIED_BY_TWO;
+import static org.macroing.math4j.MathF.cos;
+import static org.macroing.math4j.MathF.pow;
+import static org.macroing.math4j.MathF.random;
+import static org.macroing.math4j.MathF.sin;
 import static org.macroing.math4j.MathF.sqrt;
 
 import java.util.Objects;
@@ -395,6 +401,25 @@ public final class Vector3F {
 	}
 	
 	/**
+	 * Returns a new {@code Vector3F} instance that is pointing in the direction of {@code u} and {@code v}.
+	 * 
+	 * @param u the U-coordinate
+	 * @param v the V-coordinate
+	 * @return a new {@code Vector3F} instance that is pointing in the direction of {@code u} and {@code v}
+	 */
+	public static Vector3F direction(final float u, final float v) {
+		final float theta = u * 2.0F * PI;
+		final float phi = v * PI;
+		final float sinPhi = sin(phi);
+		
+		final float x = -sinPhi * cos(theta);
+		final float y = cos(phi);
+		final float z = sinPhi * sin(theta);
+		
+		return new Vector3F(x, y, z);
+	}
+	
+	/**
 	 * Returns a new {@code Vector3F} instance denoting the normal of the plane defined by the {@link Point3F} instances {@code a}, {@code b} and {@code c}.
 	 * <p>
 	 * If either {@code a}, {@code b} or {@code c} are {@code null}, a {@code NullPointerException} will be thrown.
@@ -474,6 +499,123 @@ public final class Vector3F {
 	 */
 	public static Vector3F normalNormalized(final Vector3F normalA, final Vector3F normalB, final Vector3F normalC, final float barycentricU, final float barycentricV, final float barycentricW) {
 		return normal(normalA.normalize(), normalB.normalize(), normalC.normalize(), barycentricU, barycentricV, barycentricW).normalize();
+	}
+	
+	/**
+	 * Returns a {@code Vector3F} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code 1.0F}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3F.sampleCosineWeightedHemisphere(1.0F);
+	 * }
+	 * </pre>
+	 * 
+	 * @return a {@code Vector3F} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code 1.0F}
+	 */
+	public static Vector3F sampleCosineWeightedHemisphere() {
+		return sampleCosineWeightedHemisphere(1.0F);
+	}
+	
+	/**
+	 * Returns a {@code Vector3F} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code scale}.
+	 * 
+	 * @param scale the scale to use
+	 * @return a {@code Vector3F} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code scale}
+	 */
+	public static Vector3F sampleCosineWeightedHemisphere(final float scale) {
+		final float phi = random() * PI_MULTIPLIED_BY_TWO;
+		final float random = random();
+		final float radius = sqrt(1.0F - random) * scale;
+		final float x = cos(phi) * radius;
+		final float y = sin(phi) * radius;
+		final float z = sqrt(random);
+		
+		return new Vector3F(x, y, z);
+	}
+	
+	/**
+	 * Returns a {@code Vector3F} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code 20.0F} and a scale of {@code 1.0F}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3F.samplePowerCosineWeightedHemisphere(20.0F);
+	 * }
+	 * </pre>
+	 * 
+	 * @return a {@code Vector3F} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code 20.0F} and a scale of {@code 1.0F}
+	 */
+	public static Vector3F samplePowerCosineWeightedHemisphere() {
+		return samplePowerCosineWeightedHemisphere(20.0F);
+	}
+	
+	/**
+	 * Returns a {@code Vector3F} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code 1.0F}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3F.samplePowerCosineWeightedHemisphere(exponent, 1.0F);
+	 * }
+	 * </pre>
+	 * 
+	 * @param exponent the exponent to use
+	 * @return a {@code Vector3F} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code 1.0F}
+	 */
+	public static Vector3F samplePowerCosineWeightedHemisphere(final float exponent) {
+		return samplePowerCosineWeightedHemisphere(exponent, 1.0F);
+	}
+	
+	/**
+	 * Returns a {@code Vector3F} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code scale}.
+	 * 
+	 * @param exponent the exponent to use
+	 * @param scale the scale to use
+	 * @return a {@code Vector3F} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code scale}
+	 */
+	public static Vector3F samplePowerCosineWeightedHemisphere(final float exponent, final float scale) {
+		final float phi = random() * PI_MULTIPLIED_BY_TWO;
+		final float random = pow(1.0F - random(), 1.0F / (exponent + 1.0F));
+		final float radius = sqrt(1.0F - random * random);
+		final float x = cos(phi) * radius;
+		final float y = sin(phi) * radius;
+		final float z = random;
+		
+		return new Vector3F(x * scale, y * scale, z * scale);
+	}
+	
+	/**
+	 * Returns a {@code Vector3F} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code 1.0F}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3F.sampleUniformSphere(1.0F);
+	 * }
+	 * </pre>
+	 * 
+	 * @return a {@code Vector3F} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code 1.0F}
+	 */
+	public static Vector3F sampleUniformSphere() {
+		return sampleUniformSphere(1.0F);
+	}
+	
+	/**
+	 * Returns a {@code Vector3F} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code scale}.
+	 * 
+	 * @param scale the scale to use
+	 * @return a {@code Vector3F} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code scale}
+	 */
+	public static Vector3F sampleUniformSphere(final float scale) {
+		final float phi = random() * PI_MULTIPLIED_BY_TWO;
+		final float random = random() * 2.0F - 1.0F;
+		final float radius = sqrt(1.0F - random * random);
+		final float x = cos(phi) * radius;
+		final float y = sin(phi) * radius;
+		final float z = random;
+		
+		return new Vector3F(x * scale, y * scale, z * scale);
 	}
 	
 	/**

@@ -310,6 +310,41 @@ public final class MathF {
 	}
 	
 	/**
+	 * Returns the fractional part of {@code value}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * MathF.fractionalPart(value, false);
+	 * }
+	 * </pre>
+	 * 
+	 * @param value a value
+	 * @return the fractional part of {@code value}
+	 */
+	public static float fractionalPart(final float value) {
+		return fractionalPart(value, false);
+	}
+	
+	/**
+	 * Returns the fractional part of {@code value}.
+	 * <p>
+	 * The fractional part of {@code value} is calculated in the following way:
+	 * <pre>
+	 * {@code
+	 * float fractionalPart = value < 0.0F && isUsingCeilOnNegativeValue ? ceil(value) - value : value - floor(value);
+	 * }
+	 * </pre>
+	 * 
+	 * @param value a value
+	 * @param isUsingCeilOnNegativeValue {@code true} if, and only if, {@code MathF.ceil(float)} should be used if {@code value} is negative, {@code false} otherwise
+	 * @return the fractional part of {@code value}
+	 */
+	public static float fractionalPart(final float value, final boolean isUsingCeilOnNegativeValue) {
+		return value < 0.0F && isUsingCeilOnNegativeValue ? ceil(value) - value : value - floor(value);
+	}
+	
+	/**
 	 * Performs a linear interpolation operation on the supplied values.
 	 * <p>
 	 * Returns the result of the linear interpolation operation.

@@ -68,6 +68,21 @@ public final class Ray3D {
 	}
 	
 	/**
+	 * Performs a transformation.
+	 * <p>
+	 * Returns a new {@code Ray3D} instance with the result of the transformation.
+	 * <p>
+	 * If {@code m} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param m the {@link Matrix44D} to perform the transformation with
+	 * @return a new {@code Ray3D} instance with the result of the transformation
+	 * @throws NullPointerException thrown if, and only if, {@code m} is {@code null}
+	 */
+	public Ray3D transform(final Matrix44D m) {
+		return new Ray3D(this.origin.transform(m), this.direction.transform(m));
+	}
+	
+	/**
 	 * Returns a {@code String} representation of this {@code Ray3D} instance.
 	 * 
 	 * @return a {@code String} representation of this {@code Ray3D} instance

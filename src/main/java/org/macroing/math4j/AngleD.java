@@ -19,6 +19,9 @@
 package org.macroing.math4j;
 
 import static org.macroing.math4j.MathD.PI_MULTIPLIED_BY_TWO;
+import static org.macroing.math4j.MathD.asin;
+import static org.macroing.math4j.MathD.atan;
+import static org.macroing.math4j.MathD.atan2;
 import static org.macroing.math4j.MathD.max;
 import static org.macroing.math4j.MathD.min;
 import static org.macroing.math4j.MathD.toDegrees;
@@ -37,7 +40,9 @@ import java.util.Objects;
  */
 public final class AngleD {
 	private static final double DEGREES_MAXIMUM = 360.0D;
+	private static final double DEGREES_MAXIMUM_PITCH = 90.0D;
 	private static final double DEGREES_MINIMUM = 0.0D;
+	private static final double DEGREES_MINIMUM_PITCH = -90.0D;
 	private static final double RADIANS_MAXIMUM = PI_MULTIPLIED_BY_TWO;
 	private static final double RADIANS_MINIMUM = 0.0D;
 	
@@ -282,6 +287,46 @@ public final class AngleD {
 	}
 	
 	/**
+	 * Returns a Field of View (FoV) {@code AngleD} based on {@code focalDistance} and {@code resolution}.
+	 * <p>
+	 * This method allows you to use {@code resolution} in either X- or Y-direction. So, either width or height.
+	 * 
+	 * @param focalDistance the focal distance (also known as focal length}
+	 * @param resolution the resolution in X- or Y-direction (width or height)
+	 * @return a Field of View (FoV) {@code AngleD} based on {@code focalDistance} and {@code resolution}
+	 */
+	public static AngleD fieldOfView(final double focalDistance, final double resolution) {
+		return radians(2.0D * atan(resolution * 0.5D / focalDistance));
+	}
+	
+	/**
+	 * Returns a new pitch {@code AngleD} instance based on {@code eye} and {@code lookAt}.
+	 * <p>
+	 * If either {@code eye} or {@code lookAt} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param eye the {@link Point3D} on which the "eye" is positioned
+	 * @param lookAt the {@code Point3D} to which the "eye" is looking
+	 * @return a new pitch {@code AngleD} instance based on {@code eye} and {@code lookAt}
+	 * @throws NullPointerException thrown if, and only if, either {@code eye} or {@code lookAt} are {@code null}
+	 */
+	public static AngleD pitch(final Point3D eye, final Point3D lookAt) {
+		return pitch(Vector3D.direction(eye, lookAt).normalize());
+	}
+	
+	/**
+	 * Returns a new pitch {@code AngleD} instance based on {@code direction}.
+	 * <p>
+	 * If {@code direction} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param direction a normalized direction {@link Vector3D}
+	 * @return a new pitch {@code AngleD} instance based on {@code direction}
+	 * @throws NullPointerException thrown if, and only if, {@code direction} is {@code null}
+	 */
+	public static AngleD pitch(final Vector3D direction) {
+		return degrees(toDegrees(asin(direction.y)), DEGREES_MINIMUM_PITCH, DEGREES_MAXIMUM_PITCH);
+	}
+	
+	/**
 	 * Returns a new {@code AngleD} instance based on an angle in radians.
 	 * <p>
 	 * Calling this method is equivalent to the following:
@@ -316,5 +361,32 @@ public final class AngleD {
 		final double newDegreesMaximum = toDegrees(newRadiansMaximum);
 		
 		return new AngleD(newDegrees, newDegreesMinimum, newDegreesMaximum, newRadians, newRadiansMinimum, newRadiansMaximum);
+	}
+	
+	/**
+	 * Returns a new yaw {@code AngleD} instance based on {@code eye} and {@code lookAt}.
+	 * <p>
+	 * If either {@code eye} or {@code lookAt} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param eye the {@link Point3D} on which the "eye" is positioned
+	 * @param lookAt the {@code Point3D} to which the "eye" is looking
+	 * @return a new yaw {@code AngleD} instance based on {@code eye} and {@code lookAt}
+	 * @throws NullPointerException thrown if, and only if, either {@code eye} or {@code lookAt} are {@code null}
+	 */
+	public static AngleD yaw(final Point3D eye, final Point3D lookAt) {
+		return yaw(Vector3D.direction(eye, lookAt).normalize());
+	}
+	
+	/**
+	 * Returns a new yaw {@code AngleD} instance based on {@code direction}.
+	 * <p>
+	 * If {@code direction} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param direction a normalized direction {@link Vector3D}
+	 * @return a new yaw {@code AngleD} instance based on {@code direction}
+	 * @throws NullPointerException thrown if, and only if, {@code direction} is {@code null}
+	 */
+	public static AngleD yaw(final Vector3D direction) {
+		return degrees(toDegrees(atan2(direction.x, direction.z)));
 	}
 }

@@ -310,6 +310,41 @@ public final class MathD {
 	}
 	
 	/**
+	 * Returns the fractional part of {@code value}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * MathD.fractionalPart(value, false);
+	 * }
+	 * </pre>
+	 * 
+	 * @param value a value
+	 * @return the fractional part of {@code value}
+	 */
+	public static double fractionalPart(final double value) {
+		return fractionalPart(value, false);
+	}
+	
+	/**
+	 * Returns the fractional part of {@code value}.
+	 * <p>
+	 * The fractional part of {@code value} is calculated in the following way:
+	 * <pre>
+	 * {@code
+	 * double fractionalPart = value < 0.0D && isUsingCeilOnNegativeValue ? ceil(value) - value : value - floor(value);
+	 * }
+	 * </pre>
+	 * 
+	 * @param value a value
+	 * @param isUsingCeilOnNegativeValue {@code true} if, and only if, {@code MathD.ceil(double)} should be used if {@code value} is negative, {@code false} otherwise
+	 * @return the fractional part of {@code value}
+	 */
+	public static double fractionalPart(final double value, final boolean isUsingCeilOnNegativeValue) {
+		return value < 0.0D && isUsingCeilOnNegativeValue ? ceil(value) - value : value - floor(value);
+	}
+	
+	/**
 	 * Performs a linear interpolation operation on the supplied values.
 	 * <p>
 	 * Returns the result of the linear interpolation operation.

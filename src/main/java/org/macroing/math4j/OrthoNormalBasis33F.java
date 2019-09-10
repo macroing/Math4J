@@ -281,6 +281,21 @@ public final class OrthoNormalBasis33F {
 	}
 	
 	/**
+	 * Performs a transformation in transpose order.
+	 * <p>
+	 * Returns a new {@code OrthoNormalBasis33F} instance with the result of the transformation.
+	 * <p>
+	 * If {@code m} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param m the {@link Matrix44F} instance to perform the transformation with
+	 * @return a new {@code OrthoNormalBasis33F} instance with the result of the transformation
+	 * @throws NullPointerException thrown if, and only if, {@code m} is {@code null}
+	 */
+	public OrthoNormalBasis33F transformTranspose(final Matrix44F m) {
+		return new OrthoNormalBasis33F(this.w.transformTranspose(m), this.v.transformTranspose(m), this.u.transformTranspose(m));
+	}
+	
+	/**
 	 * Returns a {@code String} representation of this {@code OrthoNormalBasis33F} instance.
 	 * 
 	 * @return a {@code String} representation of this {@code OrthoNormalBasis33F} instance

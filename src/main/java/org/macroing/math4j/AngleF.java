@@ -19,6 +19,9 @@
 package org.macroing.math4j;
 
 import static org.macroing.math4j.MathF.PI_MULTIPLIED_BY_TWO;
+import static org.macroing.math4j.MathF.asin;
+import static org.macroing.math4j.MathF.atan;
+import static org.macroing.math4j.MathF.atan2;
 import static org.macroing.math4j.MathF.max;
 import static org.macroing.math4j.MathF.min;
 import static org.macroing.math4j.MathF.toDegrees;
@@ -37,7 +40,9 @@ import java.util.Objects;
  */
 public final class AngleF {
 	private static final float DEGREES_MAXIMUM = 360.0F;
+	private static final float DEGREES_MAXIMUM_PITCH = 90.0F;
 	private static final float DEGREES_MINIMUM = 0.0F;
+	private static final float DEGREES_MINIMUM_PITCH = -90.0F;
 	private static final float RADIANS_MAXIMUM = PI_MULTIPLIED_BY_TWO;
 	private static final float RADIANS_MINIMUM = 0.0F;
 	
@@ -282,6 +287,46 @@ public final class AngleF {
 	}
 	
 	/**
+	 * Returns a Field of View (FoV) {@code AngleF} based on {@code focalDistance} and {@code resolution}.
+	 * <p>
+	 * This method allows you to use {@code resolution} in either X- or Y-direction. So, either width or height.
+	 * 
+	 * @param focalDistance the focal distance (also known as focal length}
+	 * @param resolution the resolution in X- or Y-direction (width or height)
+	 * @return a Field of View (FoV) {@code AngleF} based on {@code focalDistance} and {@code resolution}
+	 */
+	public static AngleF fieldOfView(final float focalDistance, final float resolution) {
+		return radians(2.0F * atan(resolution * 0.5F / focalDistance));
+	}
+	
+	/**
+	 * Returns a new pitch {@code AngleF} instance based on {@code eye} and {@code lookAt}.
+	 * <p>
+	 * If either {@code eye} or {@code lookAt} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param eye the {@link Point3F} on which the "eye" is positioned
+	 * @param lookAt the {@code Point3F} to which the "eye" is looking
+	 * @return a new pitch {@code AngleF} instance based on {@code eye} and {@code lookAt}
+	 * @throws NullPointerException thrown if, and only if, either {@code eye} or {@code lookAt} are {@code null}
+	 */
+	public static AngleF pitch(final Point3F eye, final Point3F lookAt) {
+		return pitch(Vector3F.direction(eye, lookAt).normalize());
+	}
+	
+	/**
+	 * Returns a new pitch {@code AngleF} instance based on {@code direction}.
+	 * <p>
+	 * If {@code direction} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param direction a normalized direction {@link Vector3F}
+	 * @return a new pitch {@code AngleF} instance based on {@code direction}
+	 * @throws NullPointerException thrown if, and only if, {@code direction} is {@code null}
+	 */
+	public static AngleF pitch(final Vector3F direction) {
+		return degrees(toDegrees(asin(direction.y)), DEGREES_MINIMUM_PITCH, DEGREES_MAXIMUM_PITCH);
+	}
+	
+	/**
 	 * Returns a new {@code AngleF} instance based on an angle in radians.
 	 * <p>
 	 * Calling this method is equivalent to the following:
@@ -316,5 +361,32 @@ public final class AngleF {
 		final float newDegreesMaximum = toDegrees(newRadiansMaximum);
 		
 		return new AngleF(newDegrees, newDegreesMinimum, newDegreesMaximum, newRadians, newRadiansMinimum, newRadiansMaximum);
+	}
+	
+	/**
+	 * Returns a new yaw {@code AngleF} instance based on {@code eye} and {@code lookAt}.
+	 * <p>
+	 * If either {@code eye} or {@code lookAt} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param eye the {@link Point3F} on which the "eye" is positioned
+	 * @param lookAt the {@code Point3F} to which the "eye" is looking
+	 * @return a new yaw {@code AngleF} instance based on {@code eye} and {@code lookAt}
+	 * @throws NullPointerException thrown if, and only if, either {@code eye} or {@code lookAt} are {@code null}
+	 */
+	public static AngleF yaw(final Point3F eye, final Point3F lookAt) {
+		return yaw(Vector3F.direction(eye, lookAt).normalize());
+	}
+	
+	/**
+	 * Returns a new yaw {@code AngleF} instance based on {@code direction}.
+	 * <p>
+	 * If {@code direction} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param direction a normalized direction {@link Vector3F}
+	 * @return a new yaw {@code AngleF} instance based on {@code direction}
+	 * @throws NullPointerException thrown if, and only if, {@code direction} is {@code null}
+	 */
+	public static AngleF yaw(final Vector3F direction) {
+		return degrees(toDegrees(atan2(direction.x, direction.z)));
 	}
 }

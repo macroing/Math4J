@@ -18,6 +18,12 @@
  */
 package org.macroing.math4j;
 
+import static org.macroing.math4j.MathD.PI;
+import static org.macroing.math4j.MathD.PI_MULTIPLIED_BY_TWO;
+import static org.macroing.math4j.MathD.cos;
+import static org.macroing.math4j.MathD.pow;
+import static org.macroing.math4j.MathD.random;
+import static org.macroing.math4j.MathD.sin;
 import static org.macroing.math4j.MathD.sqrt;
 
 import java.util.Objects;
@@ -395,6 +401,25 @@ public final class Vector3D {
 	}
 	
 	/**
+	 * Returns a new {@code Vector3D} instance that is pointing in the direction of {@code u} and {@code v}.
+	 * 
+	 * @param u the U-coordinate
+	 * @param v the V-coordinate
+	 * @return a new {@code Vector3D} instance that is pointing in the direction of {@code u} and {@code v}
+	 */
+	public static Vector3D direction(final double u, final double v) {
+		final double theta = u * 2.0D * PI;
+		final double phi = v * PI;
+		final double sinPhi = sin(phi);
+		
+		final double x = -sinPhi * cos(theta);
+		final double y = cos(phi);
+		final double z = sinPhi * sin(theta);
+		
+		return new Vector3D(x, y, z);
+	}
+	
+	/**
 	 * Returns a new {@code Vector3D} instance denoting the normal of the plane defined by the {@link Point3D} instances {@code a}, {@code b} and {@code c}.
 	 * <p>
 	 * If either {@code a}, {@code b} or {@code c} are {@code null}, a {@code NullPointerException} will be thrown.
@@ -474,6 +499,123 @@ public final class Vector3D {
 	 */
 	public static Vector3D normalNormalized(final Vector3D normalA, final Vector3D normalB, final Vector3D normalC, final double barycentricU, final double barycentricV, final double barycentricW) {
 		return normal(normalA.normalize(), normalB.normalize(), normalC.normalize(), barycentricU, barycentricV, barycentricW).normalize();
+	}
+	
+	/**
+	 * Returns a {@code Vector3D} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code 1.0D}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3D.sampleCosineWeightedHemisphere(1.0D);
+	 * }
+	 * </pre>
+	 * 
+	 * @return a {@code Vector3D} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code 1.0D}
+	 */
+	public static Vector3D sampleCosineWeightedHemisphere() {
+		return sampleCosineWeightedHemisphere(1.0D);
+	}
+	
+	/**
+	 * Returns a {@code Vector3D} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code scale}.
+	 * 
+	 * @param scale the scale to use
+	 * @return a {@code Vector3D} instance pointing in a random direction based on cosine-weighted hemisphere sampling using a scale of {@code scale}
+	 */
+	public static Vector3D sampleCosineWeightedHemisphere(final double scale) {
+		final double phi = random() * PI_MULTIPLIED_BY_TWO;
+		final double random = random();
+		final double radius = sqrt(1.0D - random) * scale;
+		final double x = cos(phi) * radius;
+		final double y = sin(phi) * radius;
+		final double z = sqrt(random);
+		
+		return new Vector3D(x, y, z);
+	}
+	
+	/**
+	 * Returns a {@code Vector3D} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code 20.0D} and a scale of {@code 1.0D}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3D.samplePowerCosineWeightedHemisphere(20.0D);
+	 * }
+	 * </pre>
+	 * 
+	 * @return a {@code Vector3D} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code 20.0D} and a scale of {@code 1.0D}
+	 */
+	public static Vector3D samplePowerCosineWeightedHemisphere() {
+		return samplePowerCosineWeightedHemisphere(20.0D);
+	}
+	
+	/**
+	 * Returns a {@code Vector3D} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code 1.0D}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3D.samplePowerCosineWeightedHemisphere(exponent, 1.0D);
+	 * }
+	 * </pre>
+	 * 
+	 * @param exponent the exponent to use
+	 * @return a {@code Vector3D} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code 1.0D}
+	 */
+	public static Vector3D samplePowerCosineWeightedHemisphere(final double exponent) {
+		return samplePowerCosineWeightedHemisphere(exponent, 1.0D);
+	}
+	
+	/**
+	 * Returns a {@code Vector3D} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code scale}.
+	 * 
+	 * @param exponent the exponent to use
+	 * @param scale the scale to use
+	 * @return a {@code Vector3D} instance pointing in a random direction based on power cosine-weighted hemisphere sampling using an exponent of {@code exponent} and a scale of {@code scale}
+	 */
+	public static Vector3D samplePowerCosineWeightedHemisphere(final double exponent, final double scale) {
+		final double phi = random() * PI_MULTIPLIED_BY_TWO;
+		final double random = pow(1.0D - random(), 1.0D / (exponent + 1.0D));
+		final double radius = sqrt(1.0D - random * random);
+		final double x = cos(phi) * radius;
+		final double y = sin(phi) * radius;
+		final double z = random;
+		
+		return new Vector3D(x * scale, y * scale, z * scale);
+	}
+	
+	/**
+	 * Returns a {@code Vector3D} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code 1.0D}.
+	 * <p>
+	 * Calling this method is equivalent to the following:
+	 * <pre>
+	 * {@code
+	 * Vector3D.sampleUniformSphere(1.0D);
+	 * }
+	 * </pre>
+	 * 
+	 * @return a {@code Vector3D} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code 1.0D}
+	 */
+	public static Vector3D sampleUniformSphere() {
+		return sampleUniformSphere(1.0D);
+	}
+	
+	/**
+	 * Returns a {@code Vector3D} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code scale}.
+	 * 
+	 * @param scale the scale to use
+	 * @return a {@code Vector3D} instance pointing in a random direction based on uniform sphere sampling using a scale of {@code scale}
+	 */
+	public static Vector3D sampleUniformSphere(final double scale) {
+		final double phi = random() * PI_MULTIPLIED_BY_TWO;
+		final double random = random() * 2.0D - 1.0D;
+		final double radius = sqrt(1.0D - random * random);
+		final double x = cos(phi) * radius;
+		final double y = sin(phi) * radius;
+		final double z = random;
+		
+		return new Vector3D(x * scale, y * scale, z * scale);
 	}
 	
 	/**
