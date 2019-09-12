@@ -26,8 +26,10 @@
 		<mkdir dir="${project.directory.source}"/>
 		
 		<!--Perform Java compilation.-->
-		<javac source="${java.source}" target="${java.target}" srcdir="${project.directory.source}" destdir="${project.directory.binary}" includeAntRuntime="false" encoding="UTF-8" debug="true" debuglevel="lines,vars,source">
+		<javac source="${java.source}" target="${java.target}" sourcepath="" srcdir="${project.directory.source}" destdir="${project.directory.binary}" includeAntRuntime="false" encoding="UTF-8" debug="true" debuglevel="lines,vars,source">
 			<compilerarg value="-Xlint:all"/>
+			
+			<include name="org/macroing/math4j/**"/>
 		</javac>
 		
 		<!--Initialize time-stamps.-->
@@ -37,7 +39,7 @@
 		</tstamp>
 		
 		<!--Create a JAR-file.-->
-		<jar destfile="${project.directory.distribution.current}/${project.name}.jar" basedir="${project.directory.binary}">
+		<jar destfile="${project.directory.distribution.current}/${project.name}.jar" basedir="${project.directory.binary}" excludes="">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}"/>
 				<attribute name="Specification-Title" value="${project.name}"/>
@@ -50,10 +52,14 @@
 		</jar>
 		
 		<!--Generate Javadocs.-->
-		<javadoc encoding="UTF-8" charset="UTF-8" docencoding="UTF-8" sourcepath="${project.directory.source}" destdir="${project.directory.distribution.current}/doc" author="true" version="true" use="true" access="protected" linksource="false" windowtitle="${project.name} API">
+		<javadoc encoding="UTF-8" charset="UTF-8" docencoding="UTF-8" destdir="${project.directory.distribution.current}/doc" author="true" version="true" use="true" access="protected" linksource="false" windowtitle="${project.name} API">
 			<classpath>
 				<pathelement location="${project.directory.binary}"/>
 			</classpath>
+			
+			<fileset dir="${project.directory.source}" defaultexcludes="yes">
+				<include name="org/macroing/math4j/**"/>
+			</fileset>
 		</javadoc>
 		
 		<!--Copy files.-->
@@ -66,7 +72,10 @@
 		
 		<!--Copy the source code.-->
 		<copy todir="${project.directory.distribution.current}/src">
-			<fileset dir="${project.directory.source}"/>
+			<fileset dir="${project.directory.source}" excludes=""/>
 		</copy>
+		
+		<!--Zip the source code.-->
+		<zip destfile="${project.directory.distribution.current}/${project.name}-src.zip" basedir="${project.directory.distribution.current}/src"/>
 	</target>
 </project>

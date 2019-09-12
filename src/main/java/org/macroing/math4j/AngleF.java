@@ -24,6 +24,7 @@ import static org.macroing.math4j.MathF.atan;
 import static org.macroing.math4j.MathF.atan2;
 import static org.macroing.math4j.MathF.max;
 import static org.macroing.math4j.MathF.min;
+import static org.macroing.math4j.MathF.tan;
 import static org.macroing.math4j.MathF.toDegrees;
 import static org.macroing.math4j.MathF.toRadians;
 import static org.macroing.math4j.MathF.wrapAround;
@@ -287,16 +288,46 @@ public final class AngleF {
 	}
 	
 	/**
-	 * Returns a Field of View (FoV) {@code AngleF} based on {@code focalDistance} and {@code resolution}.
+	 * Returns a field of view (FOV) {@code AngleF} based on {@code focalDistance} and {@code resolution}.
 	 * <p>
 	 * This method allows you to use {@code resolution} in either X- or Y-direction. So, either width or height.
 	 * 
 	 * @param focalDistance the focal distance (also known as focal length}
 	 * @param resolution the resolution in X- or Y-direction (width or height)
-	 * @return a Field of View (FoV) {@code AngleF} based on {@code focalDistance} and {@code resolution}
+	 * @return a field of view (FOV) {@code AngleF} based on {@code focalDistance} and {@code resolution}
 	 */
 	public static AngleF fieldOfView(final float focalDistance, final float resolution) {
 		return radians(2.0F * atan(resolution * 0.5F / focalDistance));
+	}
+	
+	/**
+	 * Returns a horizontal field of view (FOV) {@code AngleF} based on {@code fieldOfViewY}, {@code resolutionX} and {@code resolutionY}.
+	 * <p>
+	 * If {@code fieldOfViewY} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param fieldOfViewY the vertical field of view
+	 * @param resolutionX the resolution of the X-axis
+	 * @param resolutionY the resolution of the Y-axis
+	 * @return a horizontal field of view (FOV) {@code AngleF} based on {@code fieldOfViewY}, {@code resolutionX} and {@code resolutionY}
+	 * @throws NullPointerException thrown if, and only if, {@code fieldOfViewY} is {@code null}
+	 */
+	public static AngleF fieldOfViewX(final AngleF fieldOfViewY, final float resolutionX, final float resolutionY) {
+		return radians(2.0F * atan(tan(fieldOfViewY.radians * 0.5F) * (resolutionX / resolutionY)));
+	}
+	
+	/**
+	 * Returns a vertical field of view (FOV) {@code AngleF} based on {@code fieldOfViewX}, {@code resolutionX} and {@code resolutionY}.
+	 * <p>
+	 * If {@code fieldOfViewX} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param fieldOfViewX the horizontal field of view
+	 * @param resolutionX the resolution of the X-axis
+	 * @param resolutionY the resolution of the Y-axis
+	 * @return a vertical field of view (FOV) {@code AngleF} based on {@code fieldOfViewX}, {@code resolutionX} and {@code resolutionY}
+	 * @throws NullPointerException thrown if, and only if, {@code fieldOfViewX} is {@code null}
+	 */
+	public static AngleF fieldOfViewY(final AngleF fieldOfViewX, final float resolutionX, final float resolutionY) {
+		return radians(2.0F * atan(tan(fieldOfViewX.radians * 0.5F) * (resolutionY / resolutionX)));
 	}
 	
 	/**

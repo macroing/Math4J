@@ -43,9 +43,24 @@ public final class MathD {
 	public static final double PI = Math.PI;
 	
 	/**
+	 * The {@code double} value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter, divided by 180.0.
+	 */
+	public static final double PI_DIVIDED_BY_180 = PI / 180.0D;
+	
+	/**
 	 * The {@code double} value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter, multiplied by 2.0.
 	 */
 	public static final double PI_MULTIPLIED_BY_TWO = PI * 2.0D;
+	
+	/**
+	 * The reciprocal (or inverse) of {@link #PI_MULTIPLIED_BY_TWO}.
+	 */
+	public static final double PI_MULTIPLIED_BY_TWO_RECIPROCAL = 1.0D / PI_MULTIPLIED_BY_TWO;
+	
+	/**
+	 * The reciprocal (or inverse) of {@link #PI}.
+	 */
+	public static final double PI_RECIPROCAL = 1.0D / PI;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -644,5 +659,35 @@ public final class MathD {
 		}
 		
 		return currentValue;
+	}
+	
+	/**
+	 * Attempts to solve the quadratic system based on the values {@code a}, {@code b} and {@code c}.
+	 * <p>
+	 * Returns a {@code double[]}, with a length of {@code 2}, that contains the result.
+	 * <p>
+	 * If the quadratic system could not be solved, the result will contain the values {@code Double.NaN}.
+	 * 
+	 * @param a a value
+	 * @param b a value
+	 * @param c a value
+	 * @return a {@code double[]}, with a length of {@code 2}, that contains the result
+	 */
+	public static double[] solveQuadraticSystem(final double a, final double b, final double c) {
+		final double[] result = new double[] {Double.NaN, Double.NaN};
+		
+		final double discriminant = b * b - 4.0D * a * c;
+		
+		if(discriminant >= 0.0D) {
+			final double discriminantSqrt = sqrt(discriminant);
+			final double quadratic = -0.5D * (b < 0.0D ? b - discriminantSqrt : b + discriminantSqrt);
+			final double result0 = quadratic / a;
+			final double result1 = c / quadratic;
+			
+			result[0] = min(result0, result1);
+			result[1] = max(result0, result1);
+		}
+		
+		return result;
 	}
 }

@@ -40,12 +40,28 @@ public final class MathF {
 	/**
 	 * The {@code float} value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter.
 	 */
-	public static final float PI = doToFloat(Math.PI);
+	public static final float PI = (float)(Math.PI);
+//	public static final float PI = toFloat(Math.PI); This will cause Aparapi (a GPU-acceleration library for Java) to crash. So do not use methods when declaring constants, unless it is necessary. This comment should be used as a reminder.
+	
+	/**
+	 * The {@code float} value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter, divided by 180.0.
+	 */
+	public static final float PI_DIVIDED_BY_180 = PI / 180.0F;
 	
 	/**
 	 * The {@code float} value that is closer than any other to pi, the ratio of the circumference of a circle to its diameter, multiplied by 2.0.
 	 */
 	public static final float PI_MULTIPLIED_BY_TWO = PI * 2.0F;
+	
+	/**
+	 * The reciprocal (or inverse) of {@link #PI_MULTIPLIED_BY_TWO}.
+	 */
+	public static final float PI_MULTIPLIED_BY_TWO_RECIPROCAL = 1.0F / PI_MULTIPLIED_BY_TWO;
+	
+	/**
+	 * The reciprocal (or inverse) of {@link #PI}.
+	 */
+	public static final float PI_RECIPROCAL = 1.0F / PI;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -110,7 +126,7 @@ public final class MathF {
 	 * @see Math#acos(double)
 	 */
 	public static float acos(final float value) {
-		return doToFloat(Math.acos(value));
+		return toFloat(Math.acos(value));
 	}
 	
 	/**
@@ -131,7 +147,7 @@ public final class MathF {
 	 * @see Math#asin(double)
 	 */
 	public static float asin(final float value) {
-		return doToFloat(Math.asin(value));
+		return toFloat(Math.asin(value));
 	}
 	
 	/**
@@ -163,7 +179,7 @@ public final class MathF {
 	 * @see Math#atan(double)
 	 */
 	public static float atan(final float value) {
-		return doToFloat(Math.atan(value));
+		return toFloat(Math.atan(value));
 	}
 	
 	/**
@@ -194,7 +210,7 @@ public final class MathF {
 	 * @see Math#atan2(double, double)
 	 */
 	public static float atan2(final float y, final float x) {
-		return doToFloat(Math.atan2(y, x));
+		return toFloat(Math.atan2(y, x));
 	}
 	
 	/**
@@ -251,7 +267,7 @@ public final class MathF {
 	 * @see Math#ceil(double)
 	 */
 	public static float ceil(final float value) {
-		return doToFloat(Math.ceil(value));
+		return toFloat(Math.ceil(value));
 	}
 	
 	/**
@@ -269,7 +285,7 @@ public final class MathF {
 	 * @see Math#cos(double)
 	 */
 	public static float cos(final float angle) {
-		return doToFloat(Math.cos(angle));
+		return toFloat(Math.cos(angle));
 	}
 	
 	/**
@@ -289,7 +305,7 @@ public final class MathF {
 	 * @see Math#exp(double)
 	 */
 	public static float exp(final float exponent) {
-		return doToFloat(Math.exp(exponent));
+		return toFloat(Math.exp(exponent));
 	}
 	
 	/**
@@ -306,7 +322,7 @@ public final class MathF {
 	 * @see Math#floor(double)
 	 */
 	public static float floor(final float value) {
-		return doToFloat(Math.floor(value));
+		return toFloat(Math.floor(value));
 	}
 	
 	/**
@@ -375,7 +391,7 @@ public final class MathF {
 	 * @see Math#log(double)
 	 */
 	public static float log(final float value) {
-		return doToFloat(Math.log(value));
+		return toFloat(Math.log(value));
 	}
 	
 	/**
@@ -457,7 +473,7 @@ public final class MathF {
 	 * @see Math#pow(double, double)
 	 */
 	public static float pow(final float base, final float exponent) {
-		return doToFloat(Math.pow(base, exponent));
+		return toFloat(Math.pow(base, exponent));
 	}
 	
 	/**
@@ -531,7 +547,7 @@ public final class MathF {
 	 * @see Math#sin(double)
 	 */
 	public static float sin(final float angle) {
-		return doToFloat(Math.sin(angle));
+		return toFloat(Math.sin(angle));
 	}
 	
 	/**
@@ -570,7 +586,7 @@ public final class MathF {
 	 * @see Math#sqrt(double)
 	 */
 	public static float sqrt(final float value) {
-		return doToFloat(Math.sqrt(value));
+		return toFloat(Math.sqrt(value));
 	}
 	
 	/**
@@ -589,7 +605,7 @@ public final class MathF {
 	 * @see Math#tan(double)
 	 */
 	public static float tan(final float angle) {
-		return doToFloat(Math.tan(angle));
+		return toFloat(Math.tan(angle));
 	}
 	
 	/**
@@ -602,7 +618,7 @@ public final class MathF {
 	 * @see Math#toDegrees(double)
 	 */
 	public static float toDegrees(final float angleInRadians) {
-		return doToFloat(Math.toDegrees(angleInRadians));
+		return toFloat(Math.toDegrees(angleInRadians));
 	}
 	
 	/**
@@ -635,7 +651,7 @@ public final class MathF {
 	 * @see Math#toRadians(double)
 	 */
 	public static float toRadians(final float angleInDegrees) {
-		return doToFloat(Math.toRadians(angleInDegrees));
+		return toFloat(Math.toRadians(angleInDegrees));
 	}
 	
 	/**
@@ -666,9 +682,33 @@ public final class MathF {
 		return currentValue;
 	}
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	private static float doToFloat(final double value) {
-		return (float)(value);
+	/**
+	 * Attempts to solve the quadratic system based on the values {@code a}, {@code b} and {@code c}.
+	 * <p>
+	 * Returns a {@code float[]}, with a length of {@code 2}, that contains the result.
+	 * <p>
+	 * If the quadratic system could not be solved, the result will contain the values {@code Float.NaN}.
+	 * 
+	 * @param a a value
+	 * @param b a value
+	 * @param c a value
+	 * @return a {@code float[]}, with a length of {@code 2}, that contains the result
+	 */
+	public static float[] solveQuadraticSystem(final float a, final float b, final float c) {
+		final float[] result = new float[] {Float.NaN, Float.NaN};
+		
+		final float discriminant = b * b - 4.0F * a * c;
+		
+		if(discriminant >= 0.0F) {
+			final float discriminantSqrt = sqrt(discriminant);
+			final float quadratic = -0.5F * (b < 0.0F ? b - discriminantSqrt : b + discriminantSqrt);
+			final float result0 = quadratic / a;
+			final float result1 = c / quadratic;
+			
+			result[0] = min(result0, result1);
+			result[1] = max(result0, result1);
+		}
+		
+		return result;
 	}
 }

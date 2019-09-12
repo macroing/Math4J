@@ -24,6 +24,7 @@ import static org.macroing.math4j.MathD.atan;
 import static org.macroing.math4j.MathD.atan2;
 import static org.macroing.math4j.MathD.max;
 import static org.macroing.math4j.MathD.min;
+import static org.macroing.math4j.MathD.tan;
 import static org.macroing.math4j.MathD.toDegrees;
 import static org.macroing.math4j.MathD.toRadians;
 import static org.macroing.math4j.MathD.wrapAround;
@@ -297,6 +298,36 @@ public final class AngleD {
 	 */
 	public static AngleD fieldOfView(final double focalDistance, final double resolution) {
 		return radians(2.0D * atan(resolution * 0.5D / focalDistance));
+	}
+	
+	/**
+	 * Returns a horizontal field of view (FOV) {@code AngleD} based on {@code fieldOfViewY}, {@code resolutionX} and {@code resolutionY}.
+	 * <p>
+	 * If {@code fieldOfViewY} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param fieldOfViewY the vertical field of view
+	 * @param resolutionX the resolution of the X-axis
+	 * @param resolutionY the resolution of the Y-axis
+	 * @return a horizontal field of view (FOV) {@code AngleD} based on {@code fieldOfViewY}, {@code resolutionX} and {@code resolutionY}
+	 * @throws NullPointerException thrown if, and only if, {@code fieldOfViewY} is {@code null}
+	 */
+	public static AngleD fieldOfViewX(final AngleD fieldOfViewY, final float resolutionX, final float resolutionY) {
+		return radians(2.0D * atan(tan(fieldOfViewY.radians * 0.5D) * (resolutionX / resolutionY)));
+	}
+	
+	/**
+	 * Returns a vertical field of view (FOV) {@code AngleD} based on {@code fieldOfViewX}, {@code resolutionX} and {@code resolutionY}.
+	 * <p>
+	 * If {@code fieldOfViewX} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param fieldOfViewX the horizontal field of view
+	 * @param resolutionX the resolution of the X-axis
+	 * @param resolutionY the resolution of the Y-axis
+	 * @return a vertical field of view (FOV) {@code AngleD} based on {@code fieldOfViewX}, {@code resolutionX} and {@code resolutionY}
+	 * @throws NullPointerException thrown if, and only if, {@code fieldOfViewX} is {@code null}
+	 */
+	public static AngleD fieldOfViewY(final AngleD fieldOfViewX, final float resolutionX, final float resolutionY) {
+		return radians(2.0D * atan(tan(fieldOfViewX.radians * 0.5D) * (resolutionY / resolutionX)));
 	}
 	
 	/**
