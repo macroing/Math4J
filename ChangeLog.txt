@@ -2,6 +2,7 @@
 
 	* ADD:		Add the SampleGeneratorD and SampleGeneratorF classes for sampling.
 	* ADD:		Add the SurfaceSample3D and SurfaceSample3F classes and methods to Shape3D and Shape3F for sampling their surfaces.
+	* CHANGE:	Update version to 0.0.2.
 
 2019-09-11  Jörgen Lundgren  <joergen.lundgren@macroing.org>
 
