@@ -1,4 +1,4 @@
-Math4J v.0.0.1
+Math4J v.0.0.2
 ==============
 Math4J is a simple mathematics library for Java.
 
@@ -38,10 +38,14 @@ This library provides the following data types.
 * `Point3F` - A 3-dimensional point of type `float`.
 * `Ray3D` - A 3-dimensional ray of type `double`.
 * `Ray3F` - A 3-dimensional ray of type `float`.
+* `SampleGeneratorD` - A class for sampling of type `double`.
+* `SampleGeneratorF` - A class for sampling of type `float`.
 * `Shape3D` - A 3-dimensional shape of type `double`.
 * `Shape3F` - A 3-dimensional shape of type `float`.
 * `Sphere3D` - A sphere of type `double`.
 * `Sphere3F` - A sphere of type `float`.
+* `SurfaceSample3D` - A 3-dimensional surface sample of type `double`.
+* `SurfaceSample3F` - A 3-dimensional surface sample of type `float`.
 * `Vector3D` - A 3-dimensional vector of type `double`.
 * `Vector3F` - A 3-dimensional vector of type `float`.
 

@@ -19,10 +19,13 @@
 package org.macroing.math4j;
 
 import static org.macroing.math4j.MathF.PI;
+import static org.macroing.math4j.MathF.abs;
+import static org.macroing.math4j.MathF.max;
 import static org.macroing.math4j.MathF.pow;
 import static org.macroing.math4j.MathF.sqrt;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A {@code Sphere3F} denotes a sphere that uses the data type {@code float}.
@@ -61,18 +64,80 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
+	 * Samples this {@code Sphere3F} instance.
+	 * <p>
+	 * Returns an optional {@link SurfaceSample3F} with the surface sample.
+	 * <p>
+	 * If either {@code referencePoint} or {@code referenceSurfaceNormal} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param referencePoint the reference point on this {@code Sphere3F} instance
+	 * @param referenceSurfaceNormal the reference surface normal on this {@code Sphere3F} instance
+	 * @param u a random {@code float} with a uniform distribution between {@code 0.0F} and {@code 1.0F}
+	 * @param v a random {@code float} with a uniform distribution between {@code 0.0F} and {@code 1.0F}
+	 * @return an optional {@code SurfaceSample3F} with the surface sample
+	 * @throws NullPointerException thrown if, and only if, either {@code referencePoint} or {@code referenceSurfaceNormal} are {@code null}
+	 */
+	@Override
+	public Optional<SurfaceSample3F> sample(final Point3F referencePoint, final Vector3F referenceSurfaceNormal, final float u, final float v) {
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		
+		final Point3F center = getCenter();
+		
+		final Vector3F directionToCenter = Vector3F.direction(referencePoint, center);
+		
+		final float lengthSquared = directionToCenter.lengthSquared();
+		final float radius = getRadius();
+		final float radiusSquared = getRadiusSquared();
+		
+		if(lengthSquared < radiusSquared * 1.00001F) {
+			final Vector3F surfaceNormal = SampleGeneratorF.sampleSphereUniformDistribution(u, v);
+			
+			final Point3F point = center.add(surfaceNormal, radius);
+			
+			final Vector3F directionToSurface = Vector3F.direction(point, referencePoint);
+			final Vector3F directionToSurfaceNormalized = directionToSurface.normalize();
+			
+			final float probabilityDensityFunctionValue = directionToSurface.lengthSquared() * getSurfaceAreaProbabilityDensityFunctionValue() / abs(directionToSurfaceNormalized.dotProduct(surfaceNormal));
+			
+			return Optional.of(new SurfaceSample3F(point, surfaceNormal, probabilityDensityFunctionValue));
+		}
+		
+		final float sinThetaMaxSquared = radiusSquared / lengthSquared;
+		final float cosThetaMax = sqrt(max(0.0F, 1.0F - sinThetaMaxSquared));
+		
+		final OrthoNormalBasis33F orthoNormalBasis = new OrthoNormalBasis33F(directionToCenter);
+		
+		final Vector3F coneLocalSpace = SampleGeneratorF.sampleConeUniformDistribution(u, v, cosThetaMax);
+		final Vector3F coneGlobalSpace = coneLocalSpace.transform(orthoNormalBasis).normalize();
+		
+		final Ray3F ray = new Ray3F(referencePoint, coneGlobalSpace);
+		
+		final float t0 = intersection(ray);
+		final float t1 = Float.isNaN(t0) ? directionToCenter.dotProduct(coneGlobalSpace) : t0;
+		
+		final Point3F point = ray.origin.add(ray.direction, t1);
+		
+		final Vector3F surfaceNormal = Vector3F.direction(center, point).normalize();
+		
+		final float probabilityDensityFunctionValue = SampleGeneratorF.coneUniformDistributionProbabilityDensityFunction(cosThetaMax);
+		
+		return Optional.of(new SurfaceSample3F(point, surfaceNormal, probabilityDensityFunctionValue));
+	}
+	
+	/**
 	 * Returns an {@link OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Sphere3F} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
 	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
 	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersection(Ray3F)}
+	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
 	 * @return an {@code OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Sphere3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public OrthoNormalBasis33F calculateOrthoNormalBasis(final Ray3F ray, final float t) {
-		return new OrthoNormalBasis33F(calculateSurfaceNormal(ray, t));
+	public OrthoNormalBasis33F calculateOrthoNormalBasis(final Ray3F ray, final float t, final boolean isCorrectlyOriented) {
+		return new OrthoNormalBasis33F(calculateSurfaceNormal(ray, t, isCorrectlyOriented));
 	}
 	
 	/**
@@ -193,12 +258,16 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	 * 
 	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
 	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersection(Ray3F)}
+	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
 	 * @return a {@code Vector3F} instance denoting the surface normal of the surface of this {@code Sphere3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public Vector3F calculateSurfaceNormal(final Ray3F ray, final float t) {
-		return Vector3F.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
+	public Vector3F calculateSurfaceNormal(final Ray3F ray, final float t, final boolean isCorrectlyOriented) {
+		final Vector3F surfaceNormal0 = Vector3F.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
+		final Vector3F surfaceNormal1 = isCorrectlyOriented && surfaceNormal0.dotProduct(ray.direction) >= 0.0F ? surfaceNormal0.negate() : surfaceNormal0;
+		
+		return surfaceNormal1;
 	}
 	
 	/**
@@ -271,6 +340,45 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	}
 	
 	/**
+	 * Returns the probability density function (PDF) value for solid angle.
+	 * <p>
+	 * If either {@code referencePoint}, {@code referenceSurfaceNormal}, {@code point} or {@code surfaceNormal} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param referencePoint the reference point on this {@code Sphere3F} instance
+	 * @param referenceSurfaceNormal the reference surface normal on this {@code Sphere3F} instance
+	 * @param point the point on this {@code Sphere3F} instance
+	 * @param surfaceNormal the surface normal on this {@code Sphere3F} instance
+	 * @return the probability density function (PDF) value for solid angle
+	 * @throws NullPointerException thrown if, and only if, either {@code referencePoint}, {@code referenceSurfaceNormal}, {@code point} or {@code surfaceNormal} are {@code null}
+	 */
+	@Override
+	public float calculateProbabilityDensityFunctionValueForSolidAngle(final Point3F referencePoint, final Vector3F referenceSurfaceNormal, final Point3F point, final Vector3F surfaceNormal) {
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		
+		final Point3F center = getCenter();
+		
+		final Vector3F directionToCenter = Vector3F.direction(referencePoint, center);
+		
+		final float lengthSquared = directionToCenter.lengthSquared();
+		final float radiusSquared = getRadiusSquared();
+		
+		if(lengthSquared < radiusSquared * 1.00001F) {
+			final Vector3F directionToSurface = Vector3F.direction(point, referencePoint);
+			final Vector3F directionToSurfaceNormalized = directionToSurface.normalize();
+			
+			final float probabilityDensityFunctionValue = directionToSurface.lengthSquared() * getSurfaceAreaProbabilityDensityFunctionValue() / abs(directionToSurfaceNormalized.dotProduct(surfaceNormal));
+			
+			return probabilityDensityFunctionValue;
+		}
+		
+		final float sinThetaMaxSquared = radiusSquared / lengthSquared;
+		final float cosThetaMax = sqrt(max(0.0F, 1.0F - sinThetaMaxSquared));
+		final float probabilityDensityFunctionValue = SampleGeneratorF.coneUniformDistributionProbabilityDensityFunction(cosThetaMax);
+		
+		return probabilityDensityFunctionValue;
+	}
+	
+	/**
 	 * Returns the diameter of this {@code Sphere3F} instance.
 	 * 
 	 * @return the diameter of this {@code Sphere3F} instance
@@ -308,6 +416,16 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	}
 	
 	/**
+	 * Returns the surface area probability density function (PDF) value of this {@code Sphere3F} instance.
+	 * 
+	 * @return the surface area probability density function (PDF) value of this {@code Sphere3F} instance
+	 */
+	@Override
+	public float getSurfaceAreaProbabilityDensityFunctionValue() {
+		return 3.0F / getSurfaceArea();
+	}
+	
+	/**
 	 * Returns the volume of this {@code Sphere3F} instance.
 	 * 
 	 * @return the volume of this {@code Sphere3F} instance
@@ -334,31 +452,28 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 		final Point3F center = this.center;
 		
 		final Vector3F direction = ray.direction;
-		final Vector3F originToCenter = Vector3F.direction(origin, center);
+		final Vector3F centerToOrigin = Vector3F.direction(center, origin);
 		
-		final float originToCenterDotDirection = originToCenter.dotProduct(direction);
-		final float originToCenterDotDirectionSquared = originToCenterDotDirection * originToCenterDotDirection;
-		final float originToCenterLengthSquared = originToCenter.lengthSquared();
-		final float radius = this.radius;
-		final float radiusSquared = radius * radius;
-		final float determinantSquared = originToCenterDotDirectionSquared - originToCenterLengthSquared + radiusSquared;
+		final float radiusSquared = getRadiusSquared();
 		
-		if(determinantSquared >= 0.0F) {
-			final float determinant = sqrt(determinantSquared);
-			
-			final float t0 = originToCenterDotDirection - determinant;
-			final float t1 = originToCenterDotDirection + determinant;
-			
-			if(t0 > EPSILON) {
-				return t0;
-			}
-			
-			if(t1 > EPSILON) {
-				return t1;
-			}
+		final float a = direction.lengthSquared();
+		final float b = 2.0F * centerToOrigin.dotProduct(direction);
+		final float c = centerToOrigin.lengthSquared() - radiusSquared;
+		
+		final float[] t = MathF.solveQuadraticSystem(a, b, c);
+		
+		final float t0 = t[0];
+		final float t1 = t[1];
+		
+		if(Float.isNaN(t0) && Float.isNaN(t1)) {
+			return Float.NaN;
+		} else if(t0 > EPSILON) {
+			return t0;
+		} else if(t1 > EPSILON) {
+			return t1;
+		} else {
+			return Float.NaN;
 		}
-		
-		return Float.NaN;
 	}
 	
 	/**

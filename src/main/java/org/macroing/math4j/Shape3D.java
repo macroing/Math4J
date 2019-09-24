@@ -18,6 +18,8 @@
  */
 package org.macroing.math4j;
 
+import java.util.Optional;
+
 /**
  * A {@code Shape3D} denotes a 3-dimensional shape that uses the data type {@code double}.
  * <p>
@@ -28,16 +30,33 @@ package org.macroing.math4j;
  */
 public interface Shape3D {
 	/**
+	 * Samples this {@code Shape3D} instance.
+	 * <p>
+	 * Returns an optional {@link SurfaceSample3D} with the surface sample.
+	 * <p>
+	 * If either {@code referencePoint} or {@code referenceSurfaceNormal} are {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
+	 * 
+	 * @param referencePoint the reference point on this {@code Shape3D} instance
+	 * @param referenceSurfaceNormal the reference surface normal on this {@code Shape3D} instance
+	 * @param u a random {@code double} with a uniform distribution between {@code 0.0D} and {@code 1.0D}
+	 * @param v a random {@code double} with a uniform distribution between {@code 0.0D} and {@code 1.0D}
+	 * @return an optional {@code SurfaceSample3D} with the surface sample
+	 * @throws NullPointerException thrown if, and only if, either {@code referencePoint} or {@code referenceSurfaceNormal} are {@code null}
+	 */
+	Optional<SurfaceSample3D> sample(final Point3D referencePoint, final Vector3D referenceSurfaceNormal, final double u, final double v);
+	
+	/**
 	 * Returns an {@link OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3D} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
 	 * 
 	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
 	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
 	 * @return an {@code OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
-	OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t);
+	OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t, final boolean isCorrectlyOriented);
 	
 	/**
 	 * Returns a {@link Point2D} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Shape3D} instance where an intersection occurred.
@@ -70,10 +89,46 @@ public interface Shape3D {
 	 * 
 	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
 	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
 	 * @return a {@code Vector3D} instance denoting the surface normal of the surface of this {@code Shape3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
-	Vector3D calculateSurfaceNormal(final Ray3D ray, final double t);
+	Vector3D calculateSurfaceNormal(final Ray3D ray, final double t, final boolean isCorrectlyOriented);
+	
+	/**
+	 * Returns the probability density function (PDF) value for solid angle.
+	 * <p>
+	 * If either {@code referencePoint}, {@code referenceSurfaceNormal}, {@code point} or {@code surfaceNormal} are {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
+	 * 
+	 * @param referencePoint the reference point on this {@code Shape3D} instance
+	 * @param referenceSurfaceNormal the reference surface normal on this {@code Shape3D} instance
+	 * @param point the point on this {@code Shape3D} instance
+	 * @param surfaceNormal the surface normal on this {@code Shape3D} instance
+	 * @return the probability density function (PDF) value for solid angle
+	 * @throws NullPointerException thrown if, and only if, either {@code referencePoint}, {@code referenceSurfaceNormal}, {@code point} or {@code surfaceNormal} are {@code null}
+	 */
+	double calculateProbabilityDensityFunctionValueForSolidAngle(final Point3D referencePoint, final Vector3D referenceSurfaceNormal, final Point3D point, final Vector3D surfaceNormal);
+	
+	/**
+	 * Returns the surface area of this {@code Shape3D} instance.
+	 * 
+	 * @return the surface area of this {@code Shape3D} instance
+	 */
+	double getSurfaceArea();
+	
+	/**
+	 * Returns the surface area probability density function (PDF) value of this {@code Shape3D} instance.
+	 * 
+	 * @return the surface area probability density function (PDF) value of this {@code Shape3D} instance
+	 */
+	double getSurfaceAreaProbabilityDensityFunctionValue();
+	
+	/**
+	 * Returns the volume of this {@code Shape3D} instance.
+	 * 
+	 * @return the volume of this {@code Shape3D} instance
+	 */
+	double getVolume();
 	
 	/**
 	 * Performs an intersection test between {@code ray} and this {@code Shape3D} instance.

@@ -676,13 +676,13 @@ public final class MathD {
 	public static double[] solveQuadraticSystem(final double a, final double b, final double c) {
 		final double[] result = new double[] {Double.NaN, Double.NaN};
 		
-		final double discriminant = b * b - 4.0D * a * c;
+		final double discriminantSquared = b * b - 4.0D * a * c;
 		
-		if(discriminant >= 0.0D) {
-			final double discriminantSqrt = sqrt(discriminant);
-			final double quadratic = -0.5D * (b < 0.0D ? b - discriminantSqrt : b + discriminantSqrt);
+		if(discriminantSquared >= 0.0D) {
+			final double discriminant = sqrt(discriminantSquared);
+			final double quadratic = -0.5D * (b < 0.0D ? b - discriminant : b + discriminant);
 			final double result0 = quadratic / a;
-			final double result1 = c / quadratic;
+			final double result1 = MathD.equals(quadratic, 0.0D) ? result0 : c / quadratic;
 			
 			result[0] = min(result0, result1);
 			result[1] = max(result0, result1);

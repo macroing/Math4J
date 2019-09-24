@@ -21,6 +21,7 @@ package org.macroing.math4j;
 import static org.macroing.math4j.MathD.abs;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A {@code Plane3D} denotes a plane that uses the data type {@code double}.
@@ -62,18 +63,43 @@ public final class Plane3D implements Shape3D {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
+	 * Samples this {@code Plane3D} instance.
+	 * <p>
+	 * Returns an optional {@link SurfaceSample3D} with the surface sample.
+	 * <p>
+	 * If either {@code referencePoint} or {@code referenceSurfaceNormal} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * <p>
+	 * This {@code Plane3D} class cannot be sampled. An empty {@code Optional} will be returned.
+	 * 
+	 * @param referencePoint the reference point on this {@code Plane3D} instance
+	 * @param referenceSurfaceNormal the reference surface normal on this {@code Plane3D} instance
+	 * @param u a random {@code double} with a uniform distribution between {@code 0.0D} and {@code 1.0D}
+	 * @param v a random {@code double} with a uniform distribution between {@code 0.0D} and {@code 1.0D}
+	 * @return an optional {@code SurfaceSample3D} with the surface sample
+	 * @throws NullPointerException thrown if, and only if, either {@code referencePoint} or {@code referenceSurfaceNormal} are {@code null}
+	 */
+	@Override
+	public Optional<SurfaceSample3D> sample(final Point3D referencePoint, final Vector3D referenceSurfaceNormal, final double u, final double v) {
+		Objects.requireNonNull(referencePoint, "referencePoint == null");
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		
+		return Optional.empty();
+	}
+	
+	/**
 	 * Returns an {@link OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Plane3D} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
 	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
 	 * @param t the parametric distance from {@code ray} to this {@code Plane3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
 	 * @return an {@code OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Plane3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t) {
-		return new OrthoNormalBasis33D(calculateSurfaceNormal(ray, t));
+	public OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t, final boolean isCorrectlyOriented) {
+		return new OrthoNormalBasis33D(calculateSurfaceNormal(ray, t, isCorrectlyOriented));
 	}
 	
 	/**
@@ -187,14 +213,18 @@ public final class Plane3D implements Shape3D {
 	 * 
 	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
 	 * @param t the parametric distance from {@code ray} to this {@code Plane3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
 	 * @return a {@code Vector3D} instance denoting the surface normal of the surface of this {@code Plane3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public Vector3D calculateSurfaceNormal(final Ray3D ray, final double t) {
+	public Vector3D calculateSurfaceNormal(final Ray3D ray, final double t, final boolean isCorrectlyOriented) {
 		Objects.requireNonNull(ray, "ray == null");
 		
-		return this.surfaceNormal;
+		final Vector3D surfaceNormal0 = this.surfaceNormal;
+		final Vector3D surfaceNormal1 = isCorrectlyOriented && surfaceNormal0.dotProduct(ray.direction) >= 0.0D ? surfaceNormal0.negate() : surfaceNormal0;
+		
+		return surfaceNormal1;
 	}
 	
 	/**
@@ -231,6 +261,64 @@ public final class Plane3D implements Shape3D {
 		} else {
 			return true;
 		}
+	}
+	
+	/**
+	 * Returns the probability density function (PDF) value for solid angle.
+	 * <p>
+	 * If either {@code referencePoint}, {@code referenceSurfaceNormal}, {@code point} or {@code surfaceNormal} are {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param referencePoint the reference point on this {@code Plane3D} instance
+	 * @param referenceSurfaceNormal the reference surface normal on this {@code Plane3D} instance
+	 * @param point the point on this {@code Plane3D} instance
+	 * @param surfaceNormal the surface normal on this {@code Plane3D} instance
+	 * @return the probability density function (PDF) value for solid angle
+	 * @throws NullPointerException thrown if, and only if, either {@code referencePoint}, {@code referenceSurfaceNormal}, {@code point} or {@code surfaceNormal} are {@code null}
+	 */
+	@Override
+	public double calculateProbabilityDensityFunctionValueForSolidAngle(final Point3D referencePoint, final Vector3D referenceSurfaceNormal, final Point3D point, final Vector3D surfaceNormal) {
+		Objects.requireNonNull(referencePoint, "referencePoint == null");
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		Objects.requireNonNull(point, "point == null");
+		Objects.requireNonNull(surfaceNormal, "surfaceNormal == null");
+		
+		return 0.0D;
+	}
+	
+	/**
+	 * Returns the surface area of this {@code Plane3D} instance.
+	 * <p>
+	 * This method returns {@code Double.POSITIVE_INFINITY}.
+	 * 
+	 * @return the surface area of this {@code Plane3D} instance
+	 */
+	@Override
+	public double getSurfaceArea() {
+		return Double.POSITIVE_INFINITY;
+	}
+	
+	/**
+	 * Returns the surface area probability density function (PDF) value of this {@code Plane3D} instance.
+	 * <p>
+	 * This method returns {@code 0.0D}.
+	 * 
+	 * @return the surface area probability density function (PDF) value of this {@code Plane3D} instance
+	 */
+	@Override
+	public double getSurfaceAreaProbabilityDensityFunctionValue() {
+		return 0.0D;
+	}
+	
+	/**
+	 * Returns the volume of this {@code Plane3D} instance.
+	 * <p>
+	 * This method returns {@code Double.POSITIVE_INFINITY}.
+	 * 
+	 * @return the volume of this {@code Plane3D} instance
+	 */
+	@Override
+	public double getVolume() {
+		return Double.POSITIVE_INFINITY;
 	}
 	
 	/**

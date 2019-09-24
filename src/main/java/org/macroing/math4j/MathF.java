@@ -697,13 +697,13 @@ public final class MathF {
 	public static float[] solveQuadraticSystem(final float a, final float b, final float c) {
 		final float[] result = new float[] {Float.NaN, Float.NaN};
 		
-		final float discriminant = b * b - 4.0F * a * c;
+		final float discriminantSquared = b * b - 4.0F * a * c;
 		
-		if(discriminant >= 0.0F) {
-			final float discriminantSqrt = sqrt(discriminant);
-			final float quadratic = -0.5F * (b < 0.0F ? b - discriminantSqrt : b + discriminantSqrt);
+		if(discriminantSquared >= 0.0F) {
+			final float discriminant = sqrt(discriminantSquared);
+			final float quadratic = -0.5F * (b < 0.0F ? b - discriminant : b + discriminant);
 			final float result0 = quadratic / a;
-			final float result1 = c / quadratic;
+			final float result1 = MathF.equals(quadratic, 0.0F) ? result0 : c / quadratic;
 			
 			result[0] = min(result0, result1);
 			result[1] = max(result0, result1);
