@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 J&#246;rgen Lundgren
+ * Copyright 2019 - 2020 J&#246;rgen Lundgren
  * 
  * This file is part of org.macroing.math4j.
  * 
@@ -454,9 +454,9 @@ public final class Vector3F {
 	 * @throws NullPointerException thrown if, and only if, either {@code normalA}, {@code normalB} or {@code normalC} are {@code null}
 	 */
 	public static Vector3F normal(final Vector3F normalA, final Vector3F normalB, final Vector3F normalC, final float barycentricU, final float barycentricV, final float barycentricW) {
-		final float x = normalA.x * barycentricW + normalB.x * barycentricU + normalC.x * barycentricV;
-		final float y = normalA.y * barycentricW + normalB.y * barycentricU + normalC.y * barycentricV;
-		final float z = normalA.z * barycentricW + normalB.z * barycentricU + normalC.z * barycentricV;
+		final float x = normalA.x * barycentricU + normalB.x * barycentricV + normalC.x * barycentricW;
+		final float y = normalA.y * barycentricU + normalB.y * barycentricV + normalC.y * barycentricW;
+		final float z = normalA.z * barycentricU + normalB.z * barycentricV + normalC.z * barycentricW;
 		
 		return new Vector3F(x, y, z);
 	}

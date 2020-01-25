@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 J&#246;rgen Lundgren
+ * Copyright 2019 - 2020 J&#246;rgen Lundgren
  * 
  * This file is part of org.macroing.math4j.
  * 
@@ -312,13 +312,13 @@ public final class Plane3F implements Shape3F {
 	/**
 	 * Returns the volume of this {@code Plane3F} instance.
 	 * <p>
-	 * This method returns {@code Float.POSITIVE_INFINITY}.
+	 * This method returns {@code 0.0F}.
 	 * 
 	 * @return the volume of this {@code Plane3F} instance
 	 */
 	@Override
 	public float getVolume() {
-		return Float.POSITIVE_INFINITY;
+		return 0.0F;
 	}
 	
 	/**

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 J&#246;rgen Lundgren
+ * Copyright 2019 - 2020 J&#246;rgen Lundgren
  * 
  * This file is part of org.macroing.math4j.
  * 
@@ -312,13 +312,13 @@ public final class Plane3D implements Shape3D {
 	/**
 	 * Returns the volume of this {@code Plane3D} instance.
 	 * <p>
-	 * This method returns {@code Double.POSITIVE_INFINITY}.
+	 * This method returns {@code 0.0D}.
 	 * 
 	 * @return the volume of this {@code Plane3D} instance
 	 */
 	@Override
 	public double getVolume() {
-		return Double.POSITIVE_INFINITY;
+		return 0.0D;
 	}
 	
 	/**
