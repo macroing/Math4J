@@ -662,6 +662,23 @@ public final class Matrix44F {
 	/**
 	 * Returns a {@code Matrix44F} instance that is a rotation matrix.
 	 * <p>
+	 * If {@code q} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param q a {@code QuaternionF} instance
+	 * @return a {@code Matrix44F} instance that is a rotation matrix
+	 * @throws NullPointerException thrown if, and only if, {@code q} is {@code null}
+	 */
+	public static Matrix44F rotation(final QuaternionF q) {
+		final Vector3F w = new Vector3F(2.0F * (q.x * q.z - q.w * q.y), 2.0F * (q.y * q.z + q.w * q.x), 1.0F - 2.0F * (q.x * q.x + q.y * q.y));
+		final Vector3F v = new Vector3F(2.0F * (q.x * q.y + q.w * q.z), 1.0F - 2.0F * (q.x * q.x + q.z * q.z), 2.0F * (q.y * q.z - q.w * q.x));
+		final Vector3F u = new Vector3F(1.0F - 2.0F * (q.y * q.y + q.z * q.z), 2.0F * (q.x * q.y - q.w * q.z), 2.0F * (q.x * q.z + q.w * q.y));
+		
+		return rotation(w, v, u);
+	}
+	
+	/**
+	 * Returns a {@code Matrix44F} instance that is a rotation matrix.
+	 * <p>
 	 * If either {@code w} or {@code v} are {@code null}, a {@code NullPointerException} will be thrown.
 	 * <p>
 	 * The layout looks like this:

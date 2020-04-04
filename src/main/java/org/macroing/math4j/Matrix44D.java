@@ -662,6 +662,23 @@ public final class Matrix44D {
 	/**
 	 * Returns a {@code Matrix44D} instance that is a rotation matrix.
 	 * <p>
+	 * If {@code q} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param q a {@code QuaternionD} instance
+	 * @return a {@code Matrix44D} instance that is a rotation matrix
+	 * @throws NullPointerException thrown if, and only if, {@code q} is {@code null}
+	 */
+	public static Matrix44D rotation(final QuaternionD q) {
+		final Vector3D w = new Vector3D(2.0D * (q.x * q.z - q.w * q.y), 2.0D * (q.y * q.z + q.w * q.x), 1.0D - 2.0D * (q.x * q.x + q.y * q.y));
+		final Vector3D v = new Vector3D(2.0D * (q.x * q.y + q.w * q.z), 1.0D - 2.0D * (q.x * q.x + q.z * q.z), 2.0D * (q.y * q.z - q.w * q.x));
+		final Vector3D u = new Vector3D(1.0D - 2.0D * (q.y * q.y + q.z * q.z), 2.0D * (q.x * q.y - q.w * q.z), 2.0D * (q.x * q.z + q.w * q.y));
+		
+		return rotation(w, v, u);
+	}
+	
+	/**
+	 * Returns a {@code Matrix44D} instance that is a rotation matrix.
+	 * <p>
 	 * If either {@code w} or {@code v} are {@code null}, a {@code NullPointerException} will be thrown.
 	 * <p>
 	 * The layout looks like this:

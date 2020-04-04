@@ -136,29 +136,7 @@ public final class Triangle3D implements Shape3D {
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	public Point3D calculateBarycentricCoordinates(final Ray3D ray, final double t) {
-		final Point3D origin = ray.origin;
-		
-		final Point3D a = this.a.getPosition();
-		final Point3D b = this.b.getPosition();
-		final Point3D c = this.c.getPosition();
-		
-		final Vector3D direction = ray.direction;
-		
-		final Vector3D edgeAB = Vector3D.direction(a, b);
-		final Vector3D edgeAC = Vector3D.direction(a, c);
-		
-		final Vector3D v0 = direction.crossProduct(edgeAC);
-		final Vector3D v1 = Vector3D.direction(a, origin);
-		final Vector3D v2 = v1.crossProduct(edgeAB);
-		
-		final double determinant = edgeAB.dotProduct(v0);
-		final double determinantReciprocal = 1.0D / determinant;
-		
-		final double u = v1.dotProduct(v0) * determinantReciprocal;
-		final double v = direction.dotProduct(v2) * determinantReciprocal;
-		final double w = 1.0D - u - v;
-		
-		return new Point3D(u, v, w);
+		return doCalculateBarycentricCoordinates0(ray);
 	}
 	
 	/**
@@ -345,42 +323,7 @@ public final class Triangle3D implements Shape3D {
 	 */
 	@Override
 	public double intersection(final Ray3D ray) {
-		final Point3D origin = ray.origin;
-		
-		final Point3D a = this.a.getPosition();
-		final Point3D b = this.b.getPosition();
-		final Point3D c = this.c.getPosition();
-		
-		final Vector3D direction = ray.direction;
-		
-		final Vector3D edgeAB = Vector3D.direction(a, b);
-		final Vector3D edgeAC = Vector3D.direction(a, c);
-		
-		final Vector3D v0 = direction.crossProduct(edgeAC);
-		final Vector3D v1 = Vector3D.direction(a, origin);
-		final Vector3D v2 = v1.crossProduct(edgeAB);
-		
-		final double determinant = edgeAB.dotProduct(v0);
-		final double determinantReciprocal = 1.0D / determinant;
-		
-		if(determinant > -EPSILON && determinant > EPSILON) {
-			return Double.NaN;
-		}
-		
-		final double u = v1.dotProduct(v0) * determinantReciprocal;
-		final double v = direction.dotProduct(v2) * determinantReciprocal;
-		
-		if(u < 0.0D || u > 1.0D || v < 0.0D || u + v > 1.0D) {
-			return Double.NaN;
-		}
-		
-		final double t = edgeAC.dotProduct(v2) * determinantReciprocal;
-		
-		if(t < EPSILON) {
-			return Double.NaN;
-		}
-		
-		return t;
+		return doCalculateIntersection0(ray);
 	}
 	
 	/**
@@ -499,5 +442,196 @@ public final class Triangle3D implements Shape3D {
 		public int hashCode() {
 			return Objects.hash(this.textureCoordinates, this.position, this.normal);
 		}
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	private Point3D doCalculateBarycentricCoordinates0(final Ray3D ray) {
+		final Point3D origin = ray.origin;
+		
+		final Point3D a = this.a.getPosition();
+		final Point3D b = this.b.getPosition();
+		final Point3D c = this.c.getPosition();
+		
+		final Vector3D direction = ray.direction;
+		
+		final Vector3D edgeAB = Vector3D.direction(a, b);
+		final Vector3D edgeAC = Vector3D.direction(a, c);
+		
+		final Vector3D v0 = direction.crossProduct(edgeAC);
+		final Vector3D v1 = Vector3D.direction(a, origin);
+		final Vector3D v2 = v1.crossProduct(edgeAB);
+		
+		final double determinant = edgeAB.dotProduct(v0);
+		final double determinantReciprocal = 1.0D / determinant;
+		
+		final double u = v1.dotProduct(v0) * determinantReciprocal;
+		final double v = direction.dotProduct(v2) * determinantReciprocal;
+		final double w = 1.0D - u - v;
+		
+		return new Point3D(u, v, w);
+	}
+	
+	@SuppressWarnings("unused")
+	private Point3D doCalculateBarycentricCoordinates1(final Ray3D ray, final double t) {
+		final Point3D origin = ray.origin;
+		
+		final Point3D a = this.a.getPosition();
+		final Point3D b = this.b.getPosition();
+		final Point3D c = this.c.getPosition();
+		
+		final Vector3D direction = ray.direction;
+		final Vector3D normal = Vector3D.normal(a, b, c);
+		
+		final double denominator = normal.lengthSquared();
+		final double normalDotProductDirection = normal.dotProduct(direction);
+		
+		if(normalDotProductDirection > -EPSILON && normalDotProductDirection < EPSILON) {
+			throw new IllegalArgumentException();
+		}
+		
+//		final double normalDotProductA = normal.dotProduct(new Vector3D(a));
+//		final double t = (normal.dotProduct(new Vector3D(origin)) + normalDotProductA) / normalDotProductDirection;
+		
+		if(t < 0.0D) {
+			throw new IllegalArgumentException();
+		}
+		
+		final Point3D surfaceIntersectionPoint = origin.add(direction, t);
+		
+		final Vector3D directionAB = Vector3D.direction(a, b);
+		final Vector3D directionASurfaceIntersectionPoint = Vector3D.direction(a, surfaceIntersectionPoint);
+		final Vector3D directionABCrossProductDirectionASurfaceIntersectionPoint = directionAB.crossProduct(directionASurfaceIntersectionPoint);
+		
+		if(normal.dotProduct(directionABCrossProductDirectionASurfaceIntersectionPoint) < 0.0D) {
+			throw new IllegalArgumentException();
+		}
+		
+		final Vector3D directionBC = Vector3D.direction(b, c);
+		final Vector3D directionBSurfaceIntersectionPoint = Vector3D.direction(b, surfaceIntersectionPoint);
+		final Vector3D directionBCCrossProductDirectionBSurfaceIntersectionPoint = directionBC.crossProduct(directionBSurfaceIntersectionPoint);
+		
+		final double u0 = normal.dotProduct(directionBCCrossProductDirectionBSurfaceIntersectionPoint);
+		
+		if(u0 < 0.0D) {
+			throw new IllegalArgumentException();
+		}
+		
+		final Vector3D directionCA = Vector3D.direction(c, a);
+		final Vector3D directionCSurfaceIntersectionPoint = Vector3D.direction(c, surfaceIntersectionPoint);
+		final Vector3D directionCACrossProductDirectionCSurfaceIntersectionPoint = directionCA.crossProduct(directionCSurfaceIntersectionPoint);
+		
+		final double v0 = normal.dotProduct(directionCACrossProductDirectionCSurfaceIntersectionPoint);
+		
+		if(v0 < 0.0D) {
+			throw new IllegalArgumentException();
+		}
+		
+		final double u1 = u0 / denominator;
+		final double v1 = v0 / denominator;
+		final double w1 = 1.0D - u1 - v1;
+		
+		return new Point3D(u1, v1, w1);
+	}
+	
+	private double doCalculateIntersection0(final Ray3D ray) {
+		final Point3D origin = ray.origin;
+		
+		final Point3D a = this.a.getPosition();
+		final Point3D b = this.b.getPosition();
+		final Point3D c = this.c.getPosition();
+		
+		final Vector3D direction = ray.direction;
+		
+		final Vector3D edgeAB = Vector3D.direction(a, b);
+		final Vector3D edgeAC = Vector3D.direction(a, c);
+		
+		final Vector3D v0 = direction.crossProduct(edgeAC);
+		final Vector3D v1 = Vector3D.direction(a, origin);
+		final Vector3D v2 = v1.crossProduct(edgeAB);
+		
+		final double determinant = edgeAB.dotProduct(v0);
+		final double determinantReciprocal = 1.0D / determinant;
+		
+		if(determinant > -EPSILON && determinant < EPSILON) {
+			return Double.NaN;
+		}
+		
+		final double u = v1.dotProduct(v0) * determinantReciprocal;
+		final double v = direction.dotProduct(v2) * determinantReciprocal;
+		
+		if(u < 0.0D || u > 1.0D || v < 0.0D || u + v > 1.0D) {
+			return Double.NaN;
+		}
+		
+		final double t = edgeAC.dotProduct(v2) * determinantReciprocal;
+		
+		if(t < EPSILON) {
+			return Double.NaN;
+		}
+		
+		return t;
+	}
+	
+	@SuppressWarnings("unused")
+	private double doCalculateIntersection1(final Ray3D ray) {
+		final Point3D origin = ray.origin;
+		
+		final Point3D a = this.a.getPosition();
+		final Point3D b = this.b.getPosition();
+		final Point3D c = this.c.getPosition();
+		
+		final Vector3D direction = ray.direction;
+		final Vector3D normal = Vector3D.normal(a, b, c);
+		
+//		final double denominator = normal.lengthSquared();
+		final double normalDotProductDirection = normal.dotProduct(direction);
+		
+		if(normalDotProductDirection > -EPSILON && normalDotProductDirection < EPSILON) {
+			return Double.NaN;
+		}
+		
+		final double normalDotProductA = normal.dotProduct(new Vector3D(a));
+		final double t = (normal.dotProduct(new Vector3D(origin)) + normalDotProductA) / normalDotProductDirection;
+		
+		if(t < 0.0D) {
+			return Double.NaN;
+		}
+		
+		final Point3D surfaceIntersectionPoint = origin.add(direction, t);
+		
+		final Vector3D directionAB = Vector3D.direction(a, b);
+		final Vector3D directionASurfaceIntersectionPoint = Vector3D.direction(a, surfaceIntersectionPoint);
+		final Vector3D directionABCrossProductDirectionASurfaceIntersectionPoint = directionAB.crossProduct(directionASurfaceIntersectionPoint);
+		
+		if(normal.dotProduct(directionABCrossProductDirectionASurfaceIntersectionPoint) < 0.0D) {
+			return Double.NaN;
+		}
+		
+		final Vector3D directionBC = Vector3D.direction(b, c);
+		final Vector3D directionBSurfaceIntersectionPoint = Vector3D.direction(b, surfaceIntersectionPoint);
+		final Vector3D directionBCCrossProductDirectionBSurfaceIntersectionPoint = directionBC.crossProduct(directionBSurfaceIntersectionPoint);
+		
+		final double u0 = normal.dotProduct(directionBCCrossProductDirectionBSurfaceIntersectionPoint);
+		
+		if(u0 < 0.0D) {
+			return Double.NaN;
+		}
+		
+		final Vector3D directionCA = Vector3D.direction(c, a);
+		final Vector3D directionCSurfaceIntersectionPoint = Vector3D.direction(c, surfaceIntersectionPoint);
+		final Vector3D directionCACrossProductDirectionCSurfaceIntersectionPoint = directionCA.crossProduct(directionCSurfaceIntersectionPoint);
+		
+		final double v0 = normal.dotProduct(directionCACrossProductDirectionCSurfaceIntersectionPoint);
+		
+		if(v0 < 0.0D) {
+			return Double.NaN;
+		}
+		
+//		final double u1 = u0 / denominator;
+//		final double v1 = v0 / denominator;
+//		final double w1 = 1.0D - u1 - v1;
+		
+		return t;
 	}
 }

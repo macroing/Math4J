@@ -189,7 +189,7 @@ public final class Vector3F {
 	 * <p>
 	 * When a vector is already normalized, normalizing it results in the same vector.
 	 * 
-	 * @return the component values of this {@code Vector3F} instance
+	 * @return a new {@code Vector3F} instance with the result of the normalization
 	 */
 	public Vector3F normalize() {
 		return divide(length());
