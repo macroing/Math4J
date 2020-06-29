@@ -82,6 +82,31 @@ public final class MathD {
 	}
 	
 	/**
+	 * Returns {@code true} if, and only if, {@code a} is equal to {@code b} and {@code b} is equal to {@code c}, {@code false} otherwise.
+	 * 
+	 * @param a a {@code double} value
+	 * @param b a {@code double} value
+	 * @param c a {@code double} value
+	 * @return {@code true} if, and only if, {@code a} is equal to {@code b} and {@code b} is equal to {@code c}, {@code false} otherwise
+	 */
+	public static boolean equals(final double a, final double b, final double c) {
+		return Double.compare(a, b) == 0 && Double.compare(b, c) == 0;
+	}
+	
+	/**
+	 * Returns {@code true} if, and only if, {@code a} is equal to {@code b}, {@code b} is equal to {@code c} and {@code c} is equal to {@code d}, {@code false} otherwise.
+	 * 
+	 * @param a a {@code double} value
+	 * @param b a {@code double} value
+	 * @param c a {@code double} value
+	 * @param d a {@code double} value
+	 * @return {@code true} if, and only if, {@code a} is equal to {@code b}, {@code b} is equal to {@code c} and {@code c} is equal to {@code d}, {@code false} otherwise
+	 */
+	public static boolean equals(final double a, final double b, final double c, final double d) {
+		return Double.compare(a, b) == 0 && Double.compare(b, c) == 0 && Double.compare(c, d) == 0;
+	}
+	
+	/**
 	 * Returns the absolute version of {@code value}.
 	 * <p>
 	 * If the argument is not negative, the argument is returned. If the argument is negative, the negation of the argument is returned.
