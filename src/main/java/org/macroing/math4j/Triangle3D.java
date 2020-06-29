@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A {@code Triangle3D} denotes a triangle that uses the data type {@code double}.
+ * A {@code Triangle3D} denotes a 3-dimensional triangle that uses the data type {@code double}.
  * <p>
  * This class is immutable and therefore thread-safe.
  * 

@@ -34,22 +34,26 @@ This library provides the following data types.
 * `Plane3F` - A plane of type `float`.
 * `Point2D` - A 2-dimensional point of type `double`.
 * `Point2F` - A 2-dimensional point of type `float`.
+* `Point2I` - A 2-dimensional point of type `int`.
 * `Point3D` - A 3-dimensional point of type `double`.
 * `Point3F` - A 3-dimensional point of type `float`.
 * `QuaternionD` - A quaternion of type `double`.
 * `QuaternionF` - A quaternion of type `float`.
 * `Ray3D` - A 3-dimensional ray of type `double`.
 * `Ray3F` - A 3-dimensional ray of type `float`.
+* `Rectangle2I` - A 2-dimensional rectangle of type `int`.
 * `SampleGeneratorD` - A class for sampling of type `double`.
 * `SampleGeneratorF` - A class for sampling of type `float`.
+* `Shape2I` - A 2-dimensional shape of type `int`.
 * `Shape3D` - A 3-dimensional shape of type `double`.
 * `Shape3F` - A 3-dimensional shape of type `float`.
 * `Sphere3D` - A sphere of type `double`.
 * `Sphere3F` - A sphere of type `float`.
 * `SurfaceSample3D` - A 3-dimensional surface sample of type `double`.
 * `SurfaceSample3F` - A 3-dimensional surface sample of type `float`.
-* `Triangle3D` - A triangle of type `double`.
-* `Triangle3F` - A triangle of type `float`.
+* `Triangle2I` - A 2-dimensional triangle of type `int`.
+* `Triangle3D` - A 3-dimensional triangle of type `double`.
+* `Triangle3F` - A 3-dimensional triangle of type `float`.
 * `Vector3D` - A 3-dimensional vector of type `double`.
 * `Vector3F` - A 3-dimensional vector of type `float`.
 * `Vector4D` - A 4-dimensional vector of type `double`.
