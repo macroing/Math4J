@@ -34,6 +34,38 @@ import java.util.Objects;
  */
 public final class OrthoNormalBasis33F {
 	/**
+	 * An {@code OrthoNormalBasis33F} instance that is equal to {@code new OrthoNormalBasis33F(Vector3F.NEGATIVE_ONE_X)}.
+	 */
+	public static final OrthoNormalBasis33F NEGATIVE_ONE_X = new OrthoNormalBasis33F(Vector3F.NEGATIVE_ONE_X);
+	
+	/**
+	 * An {@code OrthoNormalBasis33F} instance that is equal to {@code new OrthoNormalBasis33F(Vector3F.NEGATIVE_ONE_Y)}.
+	 */
+	public static final OrthoNormalBasis33F NEGATIVE_ONE_Y = new OrthoNormalBasis33F(Vector3F.NEGATIVE_ONE_Y);
+	
+	/**
+	 * An {@code OrthoNormalBasis33F} instance that is equal to {@code new OrthoNormalBasis33F(Vector3F.NEGATIVE_ONE_Z)}.
+	 */
+	public static final OrthoNormalBasis33F NEGATIVE_ONE_Z = new OrthoNormalBasis33F(Vector3F.NEGATIVE_ONE_Z);
+	
+	/**
+	 * An {@code OrthoNormalBasis33F} instance that is equal to {@code new OrthoNormalBasis33F(Vector3F.POSITIVE_ONE_X)}.
+	 */
+	public static final OrthoNormalBasis33F POSITIVE_ONE_X = new OrthoNormalBasis33F(Vector3F.POSITIVE_ONE_X);
+	
+	/**
+	 * An {@code OrthoNormalBasis33F} instance that is equal to {@code new OrthoNormalBasis33F(Vector3F.POSITIVE_ONE_Y)}.
+	 */
+	public static final OrthoNormalBasis33F POSITIVE_ONE_Y = new OrthoNormalBasis33F(Vector3F.POSITIVE_ONE_Y);
+	
+	/**
+	 * An {@code OrthoNormalBasis33F} instance that is equal to {@code new OrthoNormalBasis33F(Vector3F.POSITIVE_ONE_Z)}.
+	 */
+	public static final OrthoNormalBasis33F POSITIVE_ONE_Z = new OrthoNormalBasis33F(Vector3F.POSITIVE_ONE_Z);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
 	 * A {@link Vector3F} pointing in the U-direction.
 	 */
 	public final Vector3F u;

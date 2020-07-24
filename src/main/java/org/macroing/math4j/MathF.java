@@ -488,6 +488,24 @@ public final class MathF {
 	}
 	
 	/**
+	 * Returns the normalized representation of {@code value}.
+	 * <p>
+	 * If {@code value} is greater than or equal to {@code min(a, b)} and less than or equal to {@code max(a, b)}, the normalized representation of {@code value} will be between {@code 0.0F} (inclusive) and {@code 1.0F} (inclusive).
+	 * 
+	 * @param value the {@code float} value to normalize
+	 * @param a the {@code float} value that represents the minimum or maximum boundary
+	 * @param b the {@code float} value that represents the maximum or minimum boundary
+	 * @return the normalized representation of {@code value}
+	 */
+	public static float normalize(final float value, final float a, final float b) {
+		final float maximum = max(a, b);
+		final float minimum = min(a, b);
+		final float valueNormalized = (value - minimum) / (maximum - minimum);
+		
+		return valueNormalized;
+	}
+	
+	/**
 	 * Returns {@code base} raised to the power of {@code exponent}.
 	 * <p>
 	 * For the full documentation of this method, see {@link Math#pow(double, double)}.

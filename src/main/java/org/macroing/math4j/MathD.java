@@ -487,6 +487,24 @@ public final class MathD {
 	}
 	
 	/**
+	 * Returns the normalized representation of {@code value}.
+	 * <p>
+	 * If {@code value} is greater than or equal to {@code min(a, b)} and less than or equal to {@code max(a, b)}, the normalized representation of {@code value} will be between {@code 0.0D} (inclusive) and {@code 1.0D} (inclusive).
+	 * 
+	 * @param value the {@code double} value to normalize
+	 * @param a the {@code double} value that represents the minimum or maximum boundary
+	 * @param b the {@code double} value that represents the maximum or minimum boundary
+	 * @return the normalized representation of {@code value}
+	 */
+	public static double normalize(final double value, final double a, final double b) {
+		final double maximum = max(a, b);
+		final double minimum = min(a, b);
+		final double valueNormalized = (value - minimum) / (maximum - minimum);
+		
+		return valueNormalized;
+	}
+	
+	/**
 	 * Returns {@code base} raised to the power of {@code exponent}.
 	 * <p>
 	 * For the full documentation of this method, see {@link Math#pow(double, double)}.

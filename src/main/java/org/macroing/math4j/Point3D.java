@@ -165,7 +165,7 @@ public final class Point3D {
 		final double z = m.element31 * this.x + m.element32 * this.y + m.element33 * this.z + m.element34;
 		final double w = m.element41 * this.x + m.element42 * this.y + m.element43 * this.z + m.element44;
 		
-		return MathD.equals(w, 1.0D) ? new Point3D(x / w, y / w, z / w) : new Point3D(x, y, z);
+		return MathD.equals(w, 1.0D) ? new Point3D(x, y, z) : new Point3D(x / w, y / w, z / w);
 	}
 	
 	/**
@@ -273,6 +273,15 @@ public final class Point3D {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
+	 * Returns a new {@code Point3D} instance with the greatest X-, Y- and Z-coordinate values.
+	 * 
+	 * @return a new {@code Point3D} instance with the greatest X-, Y- and Z-coordinate values
+	 */
+	public static Point3D maximum() {
+		return new Point3D(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+	}
+	
+	/**
 	 * Returns a new {@code Point3D} instance with the greater X-, Y- and Z-coordinate values of {@code a} and {@code b}.
 	 * <p>
 	 * If either {@code a} or {@code b} are {@code null}, a {@code NullPointerException} will be thrown.
@@ -313,6 +322,15 @@ public final class Point3D {
 	 */
 	public static Point3D midpoint(final Point3D a, final Point3D b) {
 		return new Point3D((a.x + b.x) * 0.5D, (a.y + b.y) * 0.5D, (a.z + b.z) * 0.5D);
+	}
+	
+	/**
+	 * Returns a new {@code Point3D} instance with the smallest X-, Y- and Z-coordinate values.
+	 * 
+	 * @return a new {@code Point3D} instance with the smallest X-, Y- and Z-coordinate values
+	 */
+	public static Point3D minimum() {
+		return new Point3D(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
 	}
 	
 	/**

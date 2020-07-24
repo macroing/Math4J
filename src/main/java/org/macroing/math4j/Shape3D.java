@@ -46,54 +46,28 @@ public interface Shape3D {
 	Optional<SurfaceSample3D> sample(final Point3D referencePoint, final Vector3D referenceSurfaceNormal, final double u, final double v);
 	
 	/**
-	 * Returns an {@link OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3D} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
-	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
-	 * @return an {@code OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3D} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t, final boolean isCorrectlyOriented);
-	
-	/**
 	 * Returns a {@link Point2D} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Shape3D} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
 	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersectionT(Ray3D)}
 	 * @return a {@code Point2D} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Shape3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	Point2D calculateTextureCoordinates(final Ray3D ray, final double t);
 	
 	/**
-	 * Returns a {@link Point3D} instance denoting the surface intersection point of the surface of this {@code Shape3D} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
-	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @return a {@code Point3D} instance denoting the surface intersection point of the surface of this {@code Shape3D} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	Point3D calculateSurfaceIntersectionPoint(final Ray3D ray, final double t);
-	
-	/**
 	 * Returns a {@link Vector3D} instance denoting the surface normal of the surface of this {@code Shape3D} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
 	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersectionT(Ray3D)}
 	 * @return a {@code Vector3D} instance denoting the surface normal of the surface of this {@code Shape3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
-	Vector3D calculateSurfaceNormal(final Ray3D ray, final double t, final boolean isCorrectlyOriented);
+	Vector3D calculateSurfaceNormal(final Ray3D ray, final double t);
 	
 	/**
 	 * Returns the probability density function (PDF) value for solid angle.
@@ -141,5 +115,35 @@ public interface Shape3D {
 	 * @return {@code t}, the parametric distance from {@code ray} to this {@code Shape3D} instance, or {@code Double.NaN} if no intersection exists
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
-	double intersection(final Ray3D ray);
+	double intersectionT(final Ray3D ray);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Returns an {@link OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3D} instance where an intersection occurred.
+	 * <p>
+	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
+	 * 
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersectionT(Ray3D)}
+	 * @return an {@code OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3D} instance where an intersection occurred
+	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
+	 */
+	default OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t) {
+		return new OrthoNormalBasis33D(calculateSurfaceNormal(ray, t));
+	}
+	
+	/**
+	 * Returns a {@link Point3D} instance denoting the surface intersection point of the surface of this {@code Shape3D} instance where an intersection occurred.
+	 * <p>
+	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3D} instance that was returned by {@code intersectionT(Ray3D)}
+	 * @return a {@code Point3D} instance denoting the surface intersection point of the surface of this {@code Shape3D} instance where an intersection occurred
+	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
+	 */
+	default Point3D calculateSurfaceIntersectionPoint(final Ray3D ray, final double t) {
+		return ray.origin.add(ray.direction, t);
+	}
 }

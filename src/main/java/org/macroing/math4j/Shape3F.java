@@ -30,6 +30,13 @@ import java.util.Optional;
  */
 public interface Shape3F {
 	/**
+	 * Returns a {@link BoundingVolume3F} instance that contains this {@code Shape3F} instance.
+	 * 
+	 * @return a {@code BoundingVolume3F} instance that contains this {@code Shape3F} instance
+	 */
+	BoundingVolume3F getBoundingVolume();
+	
+	/**
 	 * Samples this {@code Shape3F} instance.
 	 * <p>
 	 * Returns an optional {@link SurfaceSample3F} with the surface sample.
@@ -46,54 +53,41 @@ public interface Shape3F {
 	Optional<SurfaceSample3F> sample(final Point3F referencePoint, final Vector3F referenceSurfaceNormal, final float u, final float v);
 	
 	/**
-	 * Returns an {@link OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3F} instance where an intersection occurred.
+	 * Performs an intersection test between {@code ray} and this {@code Shape3F} instance.
+	 * <p>
+	 * Returns an {@code Optional} with an optional {@link Intersection3F} instance that contains information about the intersection, if it was found.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
-	 * @return an {@code OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3F} instance where an intersection occurred
+	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code Shape3F} instance
+	 * @return an {@code Optional} with an optional {@code Intersection3F} instance that contains information about the intersection, if it was found
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
-	OrthoNormalBasis33F calculateOrthoNormalBasis(final Ray3F ray, final float t, final boolean isCorrectlyOriented);
+	Optional<Intersection3F> intersection(final Ray3F ray);
 	
 	/**
 	 * Returns a {@link Point2F} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Shape3F} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersection(Ray3F)}
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersectionT(Ray3F)}
 	 * @return a {@code Point2F} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Shape3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	Point2F calculateTextureCoordinates(final Ray3F ray, final float t);
 	
 	/**
-	 * Returns a {@link Point3F} instance denoting the surface intersection point of the surface of this {@code Shape3F} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
-	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @return a {@code Point3F} instance denoting the surface intersection point of the surface of this {@code Shape3F} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	Point3F calculateSurfaceIntersectionPoint(final Ray3F ray, final float t);
-	
-	/**
 	 * Returns a {@link Vector3F} instance denoting the surface normal of the surface of this {@code Shape3F} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersectionT(Ray3F)}
 	 * @return a {@code Vector3F} instance denoting the surface normal of the surface of this {@code Shape3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
-	Vector3F calculateSurfaceNormal(final Ray3F ray, final float t, final boolean isCorrectlyOriented);
+	Vector3F calculateSurfaceNormal(final Ray3F ray, final float t);
 	
 	/**
 	 * Returns the probability density function (PDF) value for solid angle.
@@ -141,5 +135,35 @@ public interface Shape3F {
 	 * @return {@code t}, the parametric distance from {@code ray} to this {@code Shape3F} instance, or {@code Float.NaN} if no intersection exists
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
-	float intersection(final Ray3F ray);
+	float intersectionT(final Ray3F ray);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Returns an {@link OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3F} instance where an intersection occurred.
+	 * <p>
+	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
+	 * 
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersectionT(Ray3F)}
+	 * @return an {@code OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Shape3F} instance where an intersection occurred
+	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
+	 */
+	default OrthoNormalBasis33F calculateOrthoNormalBasis(final Ray3F ray, final float t) {
+		return new OrthoNormalBasis33F(calculateSurfaceNormal(ray, t));
+	}
+	
+	/**
+	 * Returns a {@link Point3F} instance denoting the surface intersection point of the surface of this {@code Shape3F} instance where an intersection occurred.
+	 * <p>
+	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Shape3F} instance that was returned by {@code intersectionT(Ray3F)}
+	 * @return a {@code Point3F} instance denoting the surface intersection point of the surface of this {@code Shape3F} instance where an intersection occurred
+	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
+	 */
+	default Point3F calculateSurfaceIntersectionPoint(final Ray3F ray, final float t) {
+		return ray.origin.add(ray.direction, t);
+	}
 }

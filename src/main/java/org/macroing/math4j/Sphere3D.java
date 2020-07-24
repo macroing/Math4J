@@ -112,7 +112,7 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 		
 		final Ray3D ray = new Ray3D(referencePoint, coneGlobalSpace);
 		
-		final double t0 = intersection(ray);
+		final double t0 = intersectionT(ray);
 		final double t1 = Double.isNaN(t0) ? directionToCenter.dotProduct(coneGlobalSpace) : t0;
 		
 		final Point3D point = ray.origin.add(ray.direction, t1);
@@ -125,28 +125,12 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 	}
 	
 	/**
-	 * Returns an {@link OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Sphere3D} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
-	 * @return an {@code OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Sphere3D} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t, final boolean isCorrectlyOriented) {
-		return new OrthoNormalBasis33D(calculateSurfaceNormal(ray, t, isCorrectlyOriented));
-	}
-	
-	/**
 	 * Returns a {@link Point2D} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Sphere3D} instance where an intersection occurred.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Sphere3D} instance that was returned by {@code intersectionT(Ray3D)}
 	 * @return a {@code Point2D} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Sphere3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
@@ -156,26 +140,10 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 	}
 	
 	/**
-	 * Returns a {@link Point3D} instance denoting the surface intersection point of the surface of this {@code Sphere3D} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @return a {@code Point3D} instance denoting the surface intersection point of the surface of this {@code Sphere3D} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public Point3D calculateSurfaceIntersectionPoint(final Ray3D ray, final double t) {
-		return ray.origin.add(ray.direction, t);
-	}
-	
-	/**
 	 * Returns the center of this {@code Sphere3D} instance.
 	 * 
 	 * @return the center of this {@code Sphere3D} instance
 	 */
-	@Override
 	public Point3D getCenter() {
 		return this.center;
 	}
@@ -256,18 +224,14 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Sphere3D} instance that was returned by {@code intersectionT(Ray3D)}
 	 * @return a {@code Vector3D} instance denoting the surface normal of the surface of this {@code Sphere3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public Vector3D calculateSurfaceNormal(final Ray3D ray, final double t, final boolean isCorrectlyOriented) {
-		final Vector3D surfaceNormal0 = Vector3D.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
-		final Vector3D surfaceNormal1 = isCorrectlyOriented && surfaceNormal0.dotProduct(ray.direction) >= 0.0D ? surfaceNormal0.negate() : surfaceNormal0;
-		
-		return surfaceNormal1;
+	public Vector3D calculateSurfaceNormal(final Ray3D ray, final double t) {
+		return Vector3D.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
 	}
 	
 	/**
@@ -305,38 +269,6 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 		} else {
 			return true;
 		}
-	}
-	
-	/**
-	 * Performs an intersection test between {@code boundingVolume} and this {@code Sphere3D} instance.
-	 * <p>
-	 * Returns {@code true} if, and only if, {@code boundingVolume} intersects this {@code Sphere3D} instance, {@code false} otherwise.
-	 * <p>
-	 * If {@code boundingVolume} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param boundingVolume the {@code BoundingVolume3D} to perform an intersection test against this {@code Sphere3D} instance
-	 * @return {@code true} if, and only if, {@code boundingVolume} intersects this {@code Sphere3D} instance, {@code false} otherwise
-	 * @throws NullPointerException thrown if, and only if, {@code boundingVolume} is {@code null}
-	 */
-	@Override
-	public boolean intersects(final BoundingVolume3D boundingVolume) {
-		return contains(boundingVolume.getClosestPointTo(this.center));
-	}
-	
-	/**
-	 * Performs an intersection test between {@code ray} and this {@code Sphere3D} instance.
-	 * <p>
-	 * Returns {@code true} if, and only if, {@code ray} intersects this {@code Sphere3D} instance, {@code false} otherwise.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3D} to perform an intersection test against this {@code Sphere3D} instance
-	 * @return {@code true} if, and only if, {@code ray} intersects this {@code Sphere3D} instance, {@code false} otherwise
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public boolean intersects(final Ray3D ray) {
-		return !Double.isNaN(intersection(ray));
 	}
 	
 	/**
@@ -447,7 +379,7 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public double intersection(final Ray3D ray) {
+	public double intersectionT(final Ray3D ray) {
 		final Point3D origin = ray.origin;
 		final Point3D center = this.center;
 		
@@ -467,9 +399,9 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 		
 		if(Double.isNaN(t0) && Double.isNaN(t1)) {
 			return Double.NaN;
-		} else if(t0 > EPSILON) {
+		} else if(!Double.isNaN(t0) && t0 > EPSILON) {
 			return t0;
-		} else if(t1 > EPSILON) {
+		} else if(!Double.isNaN(t1) && t1 > EPSILON) {
 			return t1;
 		} else {
 			return Double.NaN;

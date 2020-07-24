@@ -1,3 +1,19 @@
+2020-07-24  Jörgen Lundgren  <joergen.lundgren@macroing.org>
+
+	* ADD:		Add an Intersection3F class.
+	* ADD:		Add a RectangularCuboid3F class.
+	* ADD:		Add a TriangleMesh3F class.
+	* ADD:		Add a getBoundingVolume() method to the Shape3D interface and implementations for it.
+	* ADD:		Add a getBoundingVolume() method to the Shape3F interface and implementations for it.
+	* ADD:		Add a new intersection(Ray3D) method to the Shape3D interface and implementations for it.
+	* ADD:		Add a new intersection(Ray3F) method to the Shape3F interface and implementations for it.
+	* ADD:		Add constants to the OrthoNormalBasis33D class.
+	* ADD:		Add constants to the OrthoNormalBasis33F class.
+	* ADD:		Add constants to the Vector3D class.
+	* ADD:		Add constants to the Vector3F class.
+	* CHANGE:	Change the signature of the old intersection(Ray3D) method of the Shape3D interface to intersectionT(Ray3D).
+	* CHANGE:	Change the signature of the old intersection(Ray3F) method of the Shape3F interface to intersectionT(Ray3F).
+
 2020-06-29  Jörgen Lundgren  <joergen.lundgren@macroing.org>
 
 	* ADD:		Add the methods max(int, int, int, int) and min(int, int, int, int) to the MathI class.

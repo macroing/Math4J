@@ -34,6 +34,38 @@ import java.util.Objects;
  */
 public final class OrthoNormalBasis33D {
 	/**
+	 * An {@code OrthoNormalBasis33D} instance that is equal to {@code new OrthoNormalBasis33D(Vector3D.NEGATIVE_ONE_X)}.
+	 */
+	public static final OrthoNormalBasis33D NEGATIVE_ONE_X = new OrthoNormalBasis33D(Vector3D.NEGATIVE_ONE_X);
+	
+	/**
+	 * An {@code OrthoNormalBasis33D} instance that is equal to {@code new OrthoNormalBasis33D(Vector3D.NEGATIVE_ONE_Y)}.
+	 */
+	public static final OrthoNormalBasis33D NEGATIVE_ONE_Y = new OrthoNormalBasis33D(Vector3D.NEGATIVE_ONE_Y);
+	
+	/**
+	 * An {@code OrthoNormalBasis33D} instance that is equal to {@code new OrthoNormalBasis33D(Vector3D.NEGATIVE_ONE_Z)}.
+	 */
+	public static final OrthoNormalBasis33D NEGATIVE_ONE_Z = new OrthoNormalBasis33D(Vector3D.NEGATIVE_ONE_Z);
+	
+	/**
+	 * An {@code OrthoNormalBasis33D} instance that is equal to {@code new OrthoNormalBasis33D(Vector3D.POSITIVE_ONE_X)}.
+	 */
+	public static final OrthoNormalBasis33D POSITIVE_ONE_X = new OrthoNormalBasis33D(Vector3D.POSITIVE_ONE_X);
+	
+	/**
+	 * An {@code OrthoNormalBasis33D} instance that is equal to {@code new OrthoNormalBasis33D(Vector3D.POSITIVE_ONE_Y)}.
+	 */
+	public static final OrthoNormalBasis33D POSITIVE_ONE_Y = new OrthoNormalBasis33D(Vector3D.POSITIVE_ONE_Y);
+	
+	/**
+	 * An {@code OrthoNormalBasis33D} instance that is equal to {@code new OrthoNormalBasis33D(Vector3D.POSITIVE_ONE_Z)}.
+	 */
+	public static final OrthoNormalBasis33D POSITIVE_ONE_Z = new OrthoNormalBasis33D(Vector3D.POSITIVE_ONE_Z);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
 	 * A {@link Vector3D} pointing in the U-direction.
 	 */
 	public final Vector3D u;

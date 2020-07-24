@@ -26,6 +26,7 @@ import static org.macroing.math4j.MathF.sqrt;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * A {@code Sphere3F} denotes a sphere that uses the data type {@code float}.
@@ -62,6 +63,16 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Returns a {@link BoundingVolume3F} instance that contains this {@code Sphere3F} instance.
+	 * 
+	 * @return a {@code BoundingVolume3F} instance that contains this {@code Sphere3F} instance
+	 */
+	@Override
+	public BoundingVolume3F getBoundingVolume() {
+		return this;
+	}
 	
 	/**
 	 * Samples this {@code Sphere3F} instance.
@@ -112,7 +123,7 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 		
 		final Ray3F ray = new Ray3F(referencePoint, coneGlobalSpace);
 		
-		final float t0 = intersection(ray);
+		final float t0 = intersectionT(ray);
 		final float t1 = Float.isNaN(t0) ? directionToCenter.dotProduct(coneGlobalSpace) : t0;
 		
 		final Point3F point = ray.origin.add(ray.direction, t1);
@@ -125,19 +136,47 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	}
 	
 	/**
-	 * Returns an {@link OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Sphere3F} instance where an intersection occurred.
+	 * Performs an intersection test between {@code ray} and this {@code Sphere3F} instance.
+	 * <p>
+	 * Returns an {@code Optional} with an optional {@link Intersection3F} instance that contains information about the intersection, if it was found.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
-	 * @return an {@code OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Sphere3F} instance where an intersection occurred
+	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code Sphere3F} instance
+	 * @return an {@code Optional} with an optional {@code Intersection3F} instance that contains information about the intersection, if it was found
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public OrthoNormalBasis33F calculateOrthoNormalBasis(final Ray3F ray, final float t, final boolean isCorrectlyOriented) {
-		return new OrthoNormalBasis33F(calculateSurfaceNormal(ray, t, isCorrectlyOriented));
+	public Optional<Intersection3F> intersection(final Ray3F ray) {
+		final Point3F origin = ray.origin;
+		final Point3F center = this.center;
+		
+		final Vector3F direction = ray.direction;
+		final Vector3F centerToOrigin = Vector3F.direction(center, origin);
+		
+		final float radiusSquared = getRadiusSquared();
+		
+		final float a = direction.lengthSquared();
+		final float b = 2.0F * centerToOrigin.dotProduct(direction);
+		final float c = centerToOrigin.lengthSquared() - radiusSquared;
+		
+		final float[] ts = MathF.solveQuadraticSystem(a, b, c);
+		
+		final float t0 = ts[0];
+		final float t1 = ts[1];
+		
+		final float t = Float.isNaN(t0) && Float.isNaN(t1) ? Float.NaN : !Float.isNaN(t0) && t0 > EPSILON ? t0 : !Float.isNaN(t1) && t1 > EPSILON ? t1 : Float.NaN;
+		
+		if(Float.isNaN(t)) {
+			return Optional.empty();
+		}
+		
+		final Supplier<OrthoNormalBasis33F> orthoNormalBasisSupplier = () -> new OrthoNormalBasis33F(Vector3F.direction(this.center, ray.origin.add(ray.direction, t)).normalize());
+		final Supplier<Point2F> textureCoordinatesSupplier = () -> Point2F.direction(ray.direction);
+		final Supplier<Point3F> surfaceIntersectionPointSupplier = () -> ray.origin.add(ray.direction, t);
+		final Supplier<Vector3F> surfaceNormalSupplier = () -> Vector3F.direction(this.center, ray.origin.add(ray.direction, t)).normalize();
+		
+		return Optional.of(new Intersection3F(ray, this, t, orthoNormalBasisSupplier, textureCoordinatesSupplier, surfaceIntersectionPointSupplier, surfaceNormalSupplier));
 	}
 	
 	/**
@@ -145,8 +184,8 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersection(Ray3F)}
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersectionT(Ray3F)}
 	 * @return a {@code Point2F} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Sphere3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
@@ -156,26 +195,10 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	}
 	
 	/**
-	 * Returns a {@link Point3F} instance denoting the surface intersection point of the surface of this {@code Sphere3F} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @return a {@code Point3F} instance denoting the surface intersection point of the surface of this {@code Sphere3F} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public Point3F calculateSurfaceIntersectionPoint(final Ray3F ray, final float t) {
-		return ray.origin.add(ray.direction, t);
-	}
-	
-	/**
 	 * Returns the center of this {@code Sphere3F} instance.
 	 * 
 	 * @return the center of this {@code Sphere3F} instance
 	 */
-	@Override
 	public Point3F getCenter() {
 		return this.center;
 	}
@@ -256,18 +279,14 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Sphere3F} instance that was returned by {@code intersectionT(Ray3F)}
 	 * @return a {@code Vector3F} instance denoting the surface normal of the surface of this {@code Sphere3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public Vector3F calculateSurfaceNormal(final Ray3F ray, final float t, final boolean isCorrectlyOriented) {
-		final Vector3F surfaceNormal0 = Vector3F.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
-		final Vector3F surfaceNormal1 = isCorrectlyOriented && surfaceNormal0.dotProduct(ray.direction) >= 0.0F ? surfaceNormal0.negate() : surfaceNormal0;
-		
-		return surfaceNormal1;
+	public Vector3F calculateSurfaceNormal(final Ray3F ray, final float t) {
+		return Vector3F.direction(this.center, calculateSurfaceIntersectionPoint(ray, t)).normalize();
 	}
 	
 	/**
@@ -305,38 +324,6 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 		} else {
 			return true;
 		}
-	}
-	
-	/**
-	 * Performs an intersection test between {@code boundingVolume} and this {@code Sphere3F} instance.
-	 * <p>
-	 * Returns {@code true} if, and only if, {@code boundingVolume} intersects this {@code Sphere3F} instance, {@code false} otherwise.
-	 * <p>
-	 * If {@code boundingVolume} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param boundingVolume the {@code BoundingVolume3F} to perform an intersection test against this {@code Sphere3F} instance
-	 * @return {@code true} if, and only if, {@code boundingVolume} intersects this {@code Sphere3F} instance, {@code false} otherwise
-	 * @throws NullPointerException thrown if, and only if, {@code boundingVolume} is {@code null}
-	 */
-	@Override
-	public boolean intersects(final BoundingVolume3F boundingVolume) {
-		return contains(boundingVolume.getClosestPointTo(this.center));
-	}
-	
-	/**
-	 * Performs an intersection test between {@code ray} and this {@code Sphere3F} instance.
-	 * <p>
-	 * Returns {@code true} if, and only if, {@code ray} intersects this {@code Sphere3F} instance, {@code false} otherwise.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code Sphere3F} instance
-	 * @return {@code true} if, and only if, {@code ray} intersects this {@code Sphere3F} instance, {@code false} otherwise
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public boolean intersects(final Ray3F ray) {
-		return !Float.isNaN(intersection(ray));
 	}
 	
 	/**
@@ -447,7 +434,7 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public float intersection(final Ray3F ray) {
+	public float intersectionT(final Ray3F ray) {
 		final Point3F origin = ray.origin;
 		final Point3F center = this.center;
 		
@@ -467,9 +454,9 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 		
 		if(Float.isNaN(t0) && Float.isNaN(t1)) {
 			return Float.NaN;
-		} else if(t0 > EPSILON) {
+		} else if(!Float.isNaN(t0) && t0 > EPSILON) {
 			return t0;
-		} else if(t1 > EPSILON) {
+		} else if(!Float.isNaN(t1) && t1 > EPSILON) {
 			return t1;
 		} else {
 			return Float.NaN;

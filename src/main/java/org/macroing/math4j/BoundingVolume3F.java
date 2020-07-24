@@ -41,13 +41,6 @@ public interface BoundingVolume3F {
 	BoundingVolume3F transform(final Matrix44F m);
 	
 	/**
-	 * Returns the center of this {@code BoundingVolume3F} instance.
-	 * 
-	 * @return the center of this {@code BoundingVolume3F} instance
-	 */
-	Point3F getCenter();
-	
-	/**
 	 * Returns a {@link Point3F} instance that represents the closest point to {@code p} and is contained inside this {@code BoundingVolume3F} instance.
 	 * <p>
 	 * If {@code p} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
@@ -84,32 +77,6 @@ public interface BoundingVolume3F {
 	boolean contains(final Point3F p);
 	
 	/**
-	 * Performs an intersection test between {@code boundingVolume} and this {@code BoundingVolume3F} instance.
-	 * <p>
-	 * Returns {@code true} if, and only if, {@code boundingVolume} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise.
-	 * <p>
-	 * If {@code boundingVolume} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
-	 * 
-	 * @param boundingVolume the {@code BoundingVolume3F} to perform an intersection test against this {@code BoundingVolume3F} instance
-	 * @return {@code true} if, and only if, {@code boundingVolume} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise
-	 * @throws NullPointerException thrown if, and only if, {@code boundingVolume} is {@code null}
-	 */
-	boolean intersects(final BoundingVolume3F boundingVolume);
-	
-	/**
-	 * Performs an intersection test between {@code ray} and this {@code BoundingVolume3F} instance.
-	 * <p>
-	 * Returns {@code true} if, and only if, {@code ray} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
-	 * 
-	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code BoundingVolume3F} instance
-	 * @return {@code true} if, and only if, {@code ray} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	boolean intersects(final Ray3F ray);
-	
-	/**
 	 * Returns the surface area of this {@code BoundingVolume3F} instance.
 	 * 
 	 * @return the surface area of this {@code BoundingVolume3F} instance
@@ -122,4 +89,58 @@ public interface BoundingVolume3F {
 	 * @return the volume of this {@code BoundingVolume3F} instance
 	 */
 	float getVolume();
+	
+	/**
+	 * Performs an intersection test between {@code ray} and this {@code BoundingVolume3F} instance.
+	 * <p>
+	 * Returns {@code t}, the parametric distance from {@code ray} to this {@code BoundingVolume3F} instance, or {@code Float.NaN} if no intersection exists.
+	 * <p>
+	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
+	 * 
+	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code BoundingVolume3F} instance
+	 * @return {@code t}, the parametric distance from {@code ray} to this {@code BoundingVolume3F} instance, or {@code Float.NaN} if no intersection exists
+	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
+	 */
+	float intersectionT(final Ray3F ray);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Returns a {@link Point3F} with the X-, Y- and Z-coordinates in the middle of this {@code BoundingVolume3F} instance.
+	 * 
+	 * @return a {@code Point3F} with the X-, Y- and Z-coordinates in the middle of this {@code BoundingVolume3F} instance
+	 */
+	default Point3F getMidpoint() {
+		return Point3F.midpoint(getMaximum(), getMinimum());
+	}
+	
+	/**
+	 * Performs an intersection test between {@code boundingVolume} and this {@code BoundingVolume3F} instance.
+	 * <p>
+	 * Returns {@code true} if, and only if, {@code boundingVolume} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise.
+	 * <p>
+	 * If {@code boundingVolume} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
+	 * 
+	 * @param boundingVolume the {@code BoundingVolume3F} to perform an intersection test against this {@code BoundingVolume3F} instance
+	 * @return {@code true} if, and only if, {@code boundingVolume} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise
+	 * @throws NullPointerException thrown if, and only if, {@code boundingVolume} is {@code null}
+	 */
+	default boolean intersects(final BoundingVolume3F boundingVolume) {
+		return contains(boundingVolume.getClosestPointTo(getMidpoint()));
+	}
+	
+	/**
+	 * Performs an intersection test between {@code ray} and this {@code BoundingVolume3F} instance.
+	 * <p>
+	 * Returns {@code true} if, and only if, {@code ray} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise.
+	 * <p>
+	 * If {@code ray} is {@code null}, a {@code NullPointerException} may be thrown. But no guarantees can be made.
+	 * 
+	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code BoundingVolume3F} instance
+	 * @return {@code true} if, and only if, {@code ray} intersects this {@code BoundingVolume3F} instance, {@code false} otherwise
+	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
+	 */
+	default boolean intersects(final Ray3F ray) {
+		return !Float.isNaN(intersectionT(ray));
+	}
 }

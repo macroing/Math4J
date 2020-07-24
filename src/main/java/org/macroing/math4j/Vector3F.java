@@ -35,6 +35,43 @@ import java.util.Objects;
  */
 public final class Vector3F {
 	/**
+	 * A {@code Vector3F} instance that is equal to {@code Vector3F.x(-1.0F)}.
+	 */
+	public static final Vector3F NEGATIVE_ONE_X = x(-1.0F);
+	
+	/**
+	 * A {@code Vector3F} instance that is equal to {@code Vector3F.y(-1.0F)}.
+	 */
+	public static final Vector3F NEGATIVE_ONE_Y = y(-1.0F);
+	
+	/**
+	 * A {@code Vector3F} instance that is equal to {@code Vector3F.z(-1.0F)}.
+	 */
+	public static final Vector3F NEGATIVE_ONE_Z = z(-1.0F);
+	
+	/**
+	 * A {@code Vector3F} instance that is equal to {@code Vector3F.x(1.0F)}.
+	 */
+	public static final Vector3F POSITIVE_ONE_X = x(1.0F);
+	
+	/**
+	 * A {@code Vector3F} instance that is equal to {@code Vector3F.y(1.0F)}.
+	 */
+	public static final Vector3F POSITIVE_ONE_Y = y(1.0F);
+	
+	/**
+	 * A {@code Vector3F} instance that is equal to {@code Vector3F.z(1.0F)}.
+	 */
+	public static final Vector3F POSITIVE_ONE_Z = z(1.0F);
+	
+	/**
+	 * A {@code Vector3F} instance that is equal to {@code new Vector3F(0.0F, 0.0F, 0.0F)}.
+	 */
+	public static final Vector3F ZERO = new Vector3F(0.0F, 0.0F, 0.0F);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
 	 * The value of the X-component.
 	 */
 	public final float x;
@@ -311,6 +348,19 @@ public final class Vector3F {
 		} else {
 			return true;
 		}
+	}
+	
+	/**
+	 * Returns {@code true} if, and only if, this {@code Vector3F} instance is perpendicular to {@code v}, {@code false} otherwise.
+	 * <p>
+	 * If {@code v} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param v a {@code Vector3F} instance
+	 * @return {@code true} if, and only if, this {@code Vector3F} instance is perpendicular to {@code v}, {@code false} otherwise
+	 * @throws NullPointerException thrown if, and only if, {@code v} is {@code null}
+	 */
+	public boolean isPerpendicularTo(final Vector3F v) {
+		return MathF.equals(dotProduct(v), 0.0F);
 	}
 	
 	/**

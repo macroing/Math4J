@@ -20,6 +20,7 @@ package org.macroing.math4j;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * A {@code Triangle3F} denotes a 3-dimensional triangle that uses the data type {@code float}.
@@ -34,6 +35,7 @@ public final class Triangle3F implements Shape3F {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
+	private final BoundingVolume3F boundingVolume;
 	private final Vector3F surfaceNormal;
 	private final Vertex3F a;
 	private final Vertex3F b;
@@ -55,10 +57,21 @@ public final class Triangle3F implements Shape3F {
 		this.a = Objects.requireNonNull(a, "a == null");
 		this.b = Objects.requireNonNull(b, "b == null");
 		this.c = Objects.requireNonNull(c, "c == null");
+		this.boundingVolume = new RectangularCuboid3F(Point3F.minimum(a.getPosition(), b.getPosition(), c.getPosition()), Point3F.maximum(a.getPosition(), b.getPosition(), c.getPosition()));
 		this.surfaceNormal = Vector3F.normalNormalized(a.getPosition(), b.getPosition(), c.getPosition());
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Returns a {@link BoundingVolume3F} instance that contains this {@code Triangle3F} instance.
+	 * 
+	 * @return a {@code BoundingVolume3F} instance that contains this {@code Triangle3F} instance
+	 */
+	@Override
+	public BoundingVolume3F getBoundingVolume() {
+		return this.boundingVolume;
+	}
 	
 	/**
 	 * Samples this {@code Triangle3F} instance.
@@ -78,23 +91,68 @@ public final class Triangle3F implements Shape3F {
 	 */
 	@Override
 	public Optional<SurfaceSample3F> sample(final Point3F referencePoint, final Vector3F referenceSurfaceNormal, final float u, final float v) {
+		Objects.requireNonNull(referencePoint, "referencePoint == null");
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		
 		return Optional.empty();//TODO: Implement!
 	}
 	
 	/**
-	 * Returns an {@link OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Triangle3F} instance where an intersection occurred.
+	 * Performs an intersection test between {@code ray} and this {@code Triangle3F} instance.
+	 * <p>
+	 * Returns an {@code Optional} with an optional {@link Intersection3F} instance that contains information about the intersection, if it was found.
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
-	 * @return an {@code OrthoNormalBasis33F} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Triangle3F} instance where an intersection occurred
+	 * @param ray the {@link Ray3F} to perform an intersection test against this {@code Triangle3F} instance
+	 * @return an {@code Optional} with an optional {@code Intersection3F} instance that contains information about the intersection, if it was found
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public OrthoNormalBasis33F calculateOrthoNormalBasis(final Ray3F ray, final float t, final boolean isCorrectlyOriented) {
-		return new OrthoNormalBasis33F(calculateSurfaceNormal(ray, t, isCorrectlyOriented));
+	public Optional<Intersection3F> intersection(final Ray3F ray) {
+		final Point3F origin = ray.origin;
+		
+		final Point3F a = this.a.getPosition();
+		final Point3F b = this.b.getPosition();
+		final Point3F c = this.c.getPosition();
+		
+		final Vector3F direction = ray.direction;
+		
+		final Vector3F edgeAB = Vector3F.direction(a, b);
+		final Vector3F edgeAC = Vector3F.direction(a, c);
+		
+		final Vector3F v0 = direction.crossProduct(edgeAC);
+		final Vector3F v1 = Vector3F.direction(a, origin);
+		final Vector3F v2 = v1.crossProduct(edgeAB);
+		
+		final float determinant = edgeAB.dotProduct(v0);
+		final float determinantReciprocal = 1.0F / determinant;
+		
+		if(determinant > -EPSILON && determinant < EPSILON) {
+			return Optional.empty();
+		}
+		
+		final float u = v1.dotProduct(v0) * determinantReciprocal;
+		final float v = direction.dotProduct(v2) * determinantReciprocal;
+		
+		if(u < 0.0F || u > 1.0F || v < 0.0F || u + v > 1.0F) {
+			return Optional.empty();
+		}
+		
+		final float t = edgeAC.dotProduct(v2) * determinantReciprocal;
+		
+		if(t < EPSILON) {
+			return Optional.empty();
+		}
+		
+		final float w = 1.0F - u - v;
+		
+		final Supplier<OrthoNormalBasis33F> orthoNormalBasisSupplier = () -> new OrthoNormalBasis33F(Vector3F.normalNormalized(this.a.getNormal(), this.b.getNormal(), this.c.getNormal(), u, v, w));
+		final Supplier<Point2F> textureCoordinatesSupplier = () -> new Point2F(u * this.a.getTextureCoordinates().x + v * this.b.getTextureCoordinates().x + w * this.c.getTextureCoordinates().x, u * this.a.getTextureCoordinates().y + v * this.b.getTextureCoordinates().y + w * this.c.getTextureCoordinates().y);
+		final Supplier<Point3F> surfaceIntersectionPointSupplier = () -> ray.origin.add(ray.direction, t);
+		final Supplier<Vector3F> surfaceNormalSupplier = () -> Vector3F.normalNormalized(this.a.getNormal(), this.b.getNormal(), this.c.getNormal(), u, v, w);
+		
+		return Optional.of(new Intersection3F(ray, this, t, orthoNormalBasisSupplier, textureCoordinatesSupplier, surfaceIntersectionPointSupplier, surfaceNormalSupplier));
 	}
 	
 	/**
@@ -102,8 +160,8 @@ public final class Triangle3F implements Shape3F {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersection(Ray3F)}
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersectionT(Ray3F)}
 	 * @return a {@code Point2F} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Triangle3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
@@ -130,28 +188,13 @@ public final class Triangle3F implements Shape3F {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersection(Ray3F)}
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersectionT(Ray3F)}
 	 * @return a {@code Point3F} instance denoting the Barycentric coordinates of the surface of this {@code Triangle3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	public Point3F calculateBarycentricCoordinates(final Ray3F ray, final float t) {
 		return doCalculateBarycentricCoordinates0(ray);
-	}
-	
-	/**
-	 * Returns a {@link Point3F} instance denoting the surface intersection point of the surface of this {@code Triangle3F} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @return a {@code Point3F} instance denoting the surface intersection point of the surface of this {@code Triangle3F} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public Point3F calculateSurfaceIntersectionPoint(final Ray3F ray, final float t) {
-		return ray.origin.add(ray.direction, t);
 	}
 	
 	/**
@@ -169,14 +212,13 @@ public final class Triangle3F implements Shape3F {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersection(Ray3F)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersection(Ray3F)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3F} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
+	 * @param ray the {@link Ray3F} instance that was used in a call to {@link #intersectionT(Ray3F)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Triangle3F} instance that was returned by {@code intersectionT(Ray3F)}
 	 * @return a {@code Vector3F} instance denoting the surface normal of the surface of this {@code Triangle3F} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public Vector3F calculateSurfaceNormal(final Ray3F ray, final float t, final boolean isCorrectlyOriented) {
+	public Vector3F calculateSurfaceNormal(final Ray3F ray, final float t) {
 		final Vector3F normalA = this.a.getNormal();
 		final Vector3F normalB = this.b.getNormal();
 		final Vector3F normalC = this.c.getNormal();
@@ -187,10 +229,7 @@ public final class Triangle3F implements Shape3F {
 		final float barycentricV = barycentricCoordinates.y;
 		final float barycentricW = barycentricCoordinates.z;
 		
-		final Vector3F surfaceNormal = Vector3F.normalNormalized(normalA, normalB, normalC, barycentricU, barycentricV, barycentricW);
-		final Vector3F surfaceNormalCorrectlyOriented = isCorrectlyOriented && surfaceNormal.dotProduct(ray.direction) >= 0.0F ? surfaceNormal.negate() : surfaceNormal;
-		
-		return surfaceNormalCorrectlyOriented;
+		return Vector3F.normalNormalized(normalA, normalB, normalC, barycentricU, barycentricV, barycentricW);
 	}
 	
 	/**
@@ -263,6 +302,11 @@ public final class Triangle3F implements Shape3F {
 	 */
 	@Override
 	public float calculateProbabilityDensityFunctionValueForSolidAngle(final Point3F referencePoint, final Vector3F referenceSurfaceNormal, final Point3F point, final Vector3F surfaceNormal) {
+		Objects.requireNonNull(referencePoint, "referencePoint == null");
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		Objects.requireNonNull(point, "point == null");
+		Objects.requireNonNull(surfaceNormal, "surfaceNormal == null");
+		
 		return 0.0F;//TODO: Implement!
 	}
 	
@@ -322,8 +366,8 @@ public final class Triangle3F implements Shape3F {
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public float intersection(final Ray3F ray) {
-		return doCalculateIntersection0(ray);
+	public float intersectionT(final Ray3F ray) {
+		return doIntersectionT0(ray);
 	}
 	
 	/**
@@ -350,23 +394,26 @@ public final class Triangle3F implements Shape3F {
 		private final Point2F textureCoordinates;
 		private final Point3F position;
 		private final Vector3F normal;
+		private final Vector3F tangent;
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		/**
-		 * Constructs a new {@code Vertex3F} instance given its texture coordinates, position and surface normal.
+		 * Constructs a new {@code Vertex3F} instance given its texture coordinates, position, normal and tangent.
 		 * <p>
-		 * If either {@code textureCoordinates}, {@code position} or {@code normal} are {@code null}, a {@code NullPointerException} will be thrown.
+		 * If either {@code textureCoordinates}, {@code position}, {@code normal} or {@code tangent} are {@code null}, a {@code NullPointerException} will be thrown.
 		 * 
 		 * @param textureCoordinates the texture coordinates of this {@code Vertex3F} instance
 		 * @param position the position of this {@code Vertex3F} instance
 		 * @param normal the normal of this {@code Vertex3F} instance
-		 * @throws NullPointerException thrown if, and only if, either {@code textureCoordinates}, {@code position} or {@code normal} are {@code null}
+		 * @param tangent the tangent of this {@code Vertex3F} instance
+		 * @throws NullPointerException thrown if, and only if, either {@code textureCoordinates}, {@code position}, {@code normal} or {@code tangent} are {@code null}
 		 */
-		public Vertex3F(final Point2F textureCoordinates, final Point3F position, final Vector3F normal) {
+		public Vertex3F(final Point2F textureCoordinates, final Point3F position, final Vector3F normal, final Vector3F tangent) {
 			this.textureCoordinates = Objects.requireNonNull(textureCoordinates, "textureCoordinates == null");
 			this.position = Objects.requireNonNull(position, "position == null");
 			this.normal = Objects.requireNonNull(normal, "normal == null");
+			this.tangent = Objects.requireNonNull(tangent, "tangent == null");
 		}
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -396,7 +443,7 @@ public final class Triangle3F implements Shape3F {
 		 */
 		@Override
 		public String toString() {
-			return String.format("new Vertex3F(%s, %s, %s)", this.textureCoordinates, this.position, this.normal);
+			return String.format("new Vertex3F(%s, %s, %s, %s)", this.textureCoordinates, this.position, this.normal, this.tangent);
 		}
 		
 		/**
@@ -406,6 +453,15 @@ public final class Triangle3F implements Shape3F {
 		 */
 		public Vector3F getNormal() {
 			return this.normal;
+		}
+		
+		/**
+		 * Returns the tangent associated with this {@code Vertex3F} instance.
+		 * 
+		 * @return the tangent associated with this {@code Vertex3F} instance
+		 */
+		public Vector3F getTangent() {
+			return this.tangent;
 		}
 		
 		/**
@@ -428,6 +484,8 @@ public final class Triangle3F implements Shape3F {
 				return false;
 			} else if(!Objects.equals(this.normal, Vertex3F.class.cast(object).normal)) {
 				return false;
+			} else if(!Objects.equals(this.tangent, Vertex3F.class.cast(object).tangent)) {
+				return false;
 			} else {
 				return true;
 			}
@@ -440,7 +498,7 @@ public final class Triangle3F implements Shape3F {
 		 */
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.textureCoordinates, this.position, this.normal);
+			return Objects.hash(this.textureCoordinates, this.position, this.normal, this.tangent);
 		}
 	}
 	
@@ -534,7 +592,8 @@ public final class Triangle3F implements Shape3F {
 		return new Point3F(u1, v1, w1);
 	}
 	
-	private float doCalculateIntersection0(final Ray3F ray) {
+	@SuppressWarnings("unused")
+	private float doIntersectionT0(final Ray3F ray) {
 		final Point3F origin = ray.origin;
 		
 		final Point3F a = this.a.getPosition();
@@ -574,7 +633,7 @@ public final class Triangle3F implements Shape3F {
 	}
 	
 	@SuppressWarnings("unused")
-	private float doCalculateIntersection1(final Ray3F ray) {
+	private float doIntersectionT1(final Ray3F ray) {
 		final Point3F origin = ray.origin;
 		
 		final Point3F a = this.a.getPosition();

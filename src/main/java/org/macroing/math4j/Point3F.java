@@ -165,7 +165,7 @@ public final class Point3F {
 		final float z = m.element31 * this.x + m.element32 * this.y + m.element33 * this.z + m.element34;
 		final float w = m.element41 * this.x + m.element42 * this.y + m.element43 * this.z + m.element44;
 		
-		return MathF.equals(w, 1.0F) ? new Point3F(x / w, y / w, z / w) : new Point3F(x, y, z);
+		return MathF.equals(w, 1.0F) ? new Point3F(x, y, z) : new Point3F(x / w, y / w, z / w);
 	}
 	
 	/**
@@ -273,6 +273,15 @@ public final class Point3F {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
+	 * Returns a new {@code Point3F} instance with the greatest X-, Y- and Z-coordinate values.
+	 * 
+	 * @return a new {@code Point3F} instance with the greatest X-, Y- and Z-coordinate values
+	 */
+	public static Point3F maximum() {
+		return new Point3F(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+	}
+	
+	/**
 	 * Returns a new {@code Point3F} instance with the greater X-, Y- and Z-coordinate values of {@code a} and {@code b}.
 	 * <p>
 	 * If either {@code a} or {@code b} are {@code null}, a {@code NullPointerException} will be thrown.
@@ -313,6 +322,15 @@ public final class Point3F {
 	 */
 	public static Point3F midpoint(final Point3F a, final Point3F b) {
 		return new Point3F((a.x + b.x) * 0.5F, (a.y + b.y) * 0.5F, (a.z + b.z) * 0.5F);
+	}
+	
+	/**
+	 * Returns a new {@code Point3F} instance with the smallest X-, Y- and Z-coordinate values.
+	 * 
+	 * @return a new {@code Point3F} instance with the smallest X-, Y- and Z-coordinate values
+	 */
+	public static Point3F minimum() {
+		return new Point3F(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
 	}
 	
 	/**

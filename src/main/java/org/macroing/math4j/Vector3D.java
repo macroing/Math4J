@@ -35,6 +35,43 @@ import java.util.Objects;
  */
 public final class Vector3D {
 	/**
+	 * A {@code Vector3D} instance that is equal to {@code Vector3D.x(-1.0D)}.
+	 */
+	public static final Vector3D NEGATIVE_ONE_X = x(-1.0F);
+	
+	/**
+	 * A {@code Vector3D} instance that is equal to {@code Vector3D.y(-1.0D)}.
+	 */
+	public static final Vector3D NEGATIVE_ONE_Y = y(-1.0F);
+	
+	/**
+	 * A {@code Vector3D} instance that is equal to {@code Vector3D.z(-1.0D)}.
+	 */
+	public static final Vector3D NEGATIVE_ONE_Z = z(-1.0F);
+	
+	/**
+	 * A {@code Vector3D} instance that is equal to {@code Vector3D.x(1.0D)}.
+	 */
+	public static final Vector3D POSITIVE_ONE_X = x(1.0F);
+	
+	/**
+	 * A {@code Vector3D} instance that is equal to {@code Vector3D.y(1.0D)}.
+	 */
+	public static final Vector3D POSITIVE_ONE_Y = y(1.0F);
+	
+	/**
+	 * A {@code Vector3D} instance that is equal to {@code Vector3D.z(1.0D)}.
+	 */
+	public static final Vector3D POSITIVE_ONE_Z = z(1.0F);
+	
+	/**
+	 * A {@code Vector3D} instance that is equal to {@code new Vector3D(0.0D, 0.0D, 0.0D)}.
+	 */
+	public static final Vector3D ZERO = new Vector3D(0.0D, 0.0D, 0.0D);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
 	 * The value of the X-component.
 	 */
 	public final double x;
@@ -311,6 +348,19 @@ public final class Vector3D {
 		} else {
 			return true;
 		}
+	}
+	
+	/**
+	 * Returns {@code true} if, and only if, this {@code Vector3D} instance is perpendicular to {@code v}, {@code false} otherwise.
+	 * <p>
+	 * If {@code v} is {@code null}, a {@code NullPointerException} will be thrown.
+	 * 
+	 * @param v a {@code Vector3D} instance
+	 * @return {@code true} if, and only if, this {@code Vector3D} instance is perpendicular to {@code v}, {@code false} otherwise
+	 * @throws NullPointerException thrown if, and only if, {@code v} is {@code null}
+	 */
+	public boolean isPerpendicularTo(final Vector3D v) {
+		return MathD.equals(dotProduct(v), 0.0D);
 	}
 	
 	/**

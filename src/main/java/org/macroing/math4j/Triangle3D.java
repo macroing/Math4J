@@ -78,23 +78,10 @@ public final class Triangle3D implements Shape3D {
 	 */
 	@Override
 	public Optional<SurfaceSample3D> sample(final Point3D referencePoint, final Vector3D referenceSurfaceNormal, final double u, final double v) {
+		Objects.requireNonNull(referencePoint, "referencePoint == null");
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		
 		return Optional.empty();//TODO: Implement!
-	}
-	
-	/**
-	 * Returns an {@link OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Triangle3D} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code OrthoNormalBasis33D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
-	 * @return an {@code OrthoNormalBasis33D} instance denoting the OrthoNormal Basis (ONB) of the surface of this {@code Triangle3D} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public OrthoNormalBasis33D calculateOrthoNormalBasis(final Ray3D ray, final double t, final boolean isCorrectlyOriented) {
-		return new OrthoNormalBasis33D(calculateSurfaceNormal(ray, t, isCorrectlyOriented));
 	}
 	
 	/**
@@ -102,8 +89,8 @@ public final class Triangle3D implements Shape3D {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersectionT(Ray3D)}
 	 * @return a {@code Point2D} instance denoting the texture coordinates (or UV-coordinates) of the surface of this {@code Triangle3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
@@ -130,28 +117,13 @@ public final class Triangle3D implements Shape3D {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersection(Ray3D)}
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersectionT(Ray3D)}
 	 * @return a {@code Point3D} instance denoting the Barycentric coordinates of the surface of this {@code Triangle3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	public Point3D calculateBarycentricCoordinates(final Ray3D ray, final double t) {
 		return doCalculateBarycentricCoordinates0(ray);
-	}
-	
-	/**
-	 * Returns a {@link Point3D} instance denoting the surface intersection point of the surface of this {@code Triangle3D} instance where an intersection occurred.
-	 * <p>
-	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
-	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @return a {@code Point3D} instance denoting the surface intersection point of the surface of this {@code Triangle3D} instance where an intersection occurred
-	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
-	 */
-	@Override
-	public Point3D calculateSurfaceIntersectionPoint(final Ray3D ray, final double t) {
-		return ray.origin.add(ray.direction, t);
 	}
 	
 	/**
@@ -169,14 +141,13 @@ public final class Triangle3D implements Shape3D {
 	 * <p>
 	 * If {@code ray} is {@code null}, a {@code NullPointerException} will be thrown.
 	 * 
-	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersection(Ray3D)} and resulted in {@code t} being returned
-	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersection(Ray3D)}
-	 * @param isCorrectlyOriented {@code true} if, and only if, the {@code Vector3D} must lie in the same hemisphere as {@code ray}, {@code false} otherwise
+	 * @param ray the {@link Ray3D} instance that was used in a call to {@link #intersectionT(Ray3D)} and resulted in {@code t} being returned
+	 * @param t the parametric distance from {@code ray} to this {@code Triangle3D} instance that was returned by {@code intersectionT(Ray3D)}
 	 * @return a {@code Vector3D} instance denoting the surface normal of the surface of this {@code Triangle3D} instance where an intersection occurred
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public Vector3D calculateSurfaceNormal(final Ray3D ray, final double t, final boolean isCorrectlyOriented) {
+	public Vector3D calculateSurfaceNormal(final Ray3D ray, final double t) {
 		final Vector3D normalA = this.a.getNormal();
 		final Vector3D normalB = this.b.getNormal();
 		final Vector3D normalC = this.c.getNormal();
@@ -187,10 +158,7 @@ public final class Triangle3D implements Shape3D {
 		final double barycentricV = barycentricCoordinates.y;
 		final double barycentricW = barycentricCoordinates.z;
 		
-		final Vector3D surfaceNormal = Vector3D.normalNormalized(normalA, normalB, normalC, barycentricU, barycentricV, barycentricW);
-		final Vector3D surfaceNormalCorrectlyOriented = isCorrectlyOriented && surfaceNormal.dotProduct(ray.direction) >= 0.0D ? surfaceNormal.negate() : surfaceNormal;
-		
-		return surfaceNormalCorrectlyOriented;
+		return Vector3D.normalNormalized(normalA, normalB, normalC, barycentricU, barycentricV, barycentricW);
 	}
 	
 	/**
@@ -263,6 +231,11 @@ public final class Triangle3D implements Shape3D {
 	 */
 	@Override
 	public double calculateProbabilityDensityFunctionValueForSolidAngle(final Point3D referencePoint, final Vector3D referenceSurfaceNormal, final Point3D point, final Vector3D surfaceNormal) {
+		Objects.requireNonNull(referencePoint, "referencePoint == null");
+		Objects.requireNonNull(referenceSurfaceNormal, "referenceSurfaceNormal == null");
+		Objects.requireNonNull(point, "point == null");
+		Objects.requireNonNull(surfaceNormal, "surfaceNormal == null");
+		
 		return 0.0D;//TODO: Implement!
 	}
 	
@@ -322,8 +295,8 @@ public final class Triangle3D implements Shape3D {
 	 * @throws NullPointerException thrown if, and only if, {@code ray} is {@code null}
 	 */
 	@Override
-	public double intersection(final Ray3D ray) {
-		return doCalculateIntersection0(ray);
+	public double intersectionT(final Ray3D ray) {
+		return doIntersectionT0(ray);
 	}
 	
 	/**
@@ -350,23 +323,26 @@ public final class Triangle3D implements Shape3D {
 		private final Point2D textureCoordinates;
 		private final Point3D position;
 		private final Vector3D normal;
+		private final Vector3D tangent;
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		/**
-		 * Constructs a new {@code Vertex3D} instance given its texture coordinates, position and surface normal.
+		 * Constructs a new {@code Vertex3D} instance given its texture coordinates, position, normal and tangent.
 		 * <p>
 		 * If either {@code textureCoordinates}, {@code position} or {@code normal} are {@code null}, a {@code NullPointerException} will be thrown.
 		 * 
 		 * @param textureCoordinates the texture coordinates of this {@code Vertex3D} instance
 		 * @param position the position of this {@code Vertex3D} instance
 		 * @param normal the normal of this {@code Vertex3D} instance
+		 * @param tangent the tangent of this {@code Vertex3D} instance
 		 * @throws NullPointerException thrown if, and only if, either {@code textureCoordinates}, {@code position} or {@code normal} are {@code null}
 		 */
-		public Vertex3D(final Point2D textureCoordinates, final Point3D position, final Vector3D normal) {
+		public Vertex3D(final Point2D textureCoordinates, final Point3D position, final Vector3D normal, final Vector3D tangent) {
 			this.textureCoordinates = Objects.requireNonNull(textureCoordinates, "textureCoordinates == null");
 			this.position = Objects.requireNonNull(position, "position == null");
 			this.normal = Objects.requireNonNull(normal, "normal == null");
+			this.tangent = Objects.requireNonNull(tangent, "tangent == null");
 		}
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -396,7 +372,7 @@ public final class Triangle3D implements Shape3D {
 		 */
 		@Override
 		public String toString() {
-			return String.format("new Vertex3D(%s, %s, %s)", this.textureCoordinates, this.position, this.normal);
+			return String.format("new Vertex3D(%s, %s, %s, %s)", this.textureCoordinates, this.position, this.normal, this.tangent);
 		}
 		
 		/**
@@ -406,6 +382,15 @@ public final class Triangle3D implements Shape3D {
 		 */
 		public Vector3D getNormal() {
 			return this.normal;
+		}
+		
+		/**
+		 * Returns the tangent associated with this {@code Vertex3D} instance.
+		 * 
+		 * @return the tangent associated with this {@code Vertex3D} instance
+		 */
+		public Vector3D getTangent() {
+			return this.tangent;
 		}
 		
 		/**
@@ -428,6 +413,8 @@ public final class Triangle3D implements Shape3D {
 				return false;
 			} else if(!Objects.equals(this.normal, Vertex3D.class.cast(object).normal)) {
 				return false;
+			} else if(!Objects.equals(this.tangent, Vertex3D.class.cast(object).tangent)) {
+				return false;
 			} else {
 				return true;
 			}
@@ -440,7 +427,7 @@ public final class Triangle3D implements Shape3D {
 		 */
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.textureCoordinates, this.position, this.normal);
+			return Objects.hash(this.textureCoordinates, this.position, this.normal, this.tangent);
 		}
 	}
 	
@@ -534,7 +521,7 @@ public final class Triangle3D implements Shape3D {
 		return new Point3D(u1, v1, w1);
 	}
 	
-	private double doCalculateIntersection0(final Ray3D ray) {
+	private double doIntersectionT0(final Ray3D ray) {
 		final Point3D origin = ray.origin;
 		
 		final Point3D a = this.a.getPosition();
@@ -574,7 +561,7 @@ public final class Triangle3D implements Shape3D {
 	}
 	
 	@SuppressWarnings("unused")
-	private double doCalculateIntersection1(final Ray3D ray) {
+	private double doIntersectionT1(final Ray3D ray) {
 		final Point3D origin = ray.origin;
 		
 		final Point3D a = this.a.getPosition();

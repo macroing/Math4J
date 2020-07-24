@@ -19,6 +19,8 @@
 package org.macroing.math4j;
 
 import static org.macroing.math4j.MathF.abs;
+import static org.macroing.math4j.MathF.cos;
+import static org.macroing.math4j.MathF.sin;
 
 import java.util.Objects;
 
@@ -731,6 +733,75 @@ public final class Matrix44F {
 	 */
 	public static Matrix44F rotation(final Vector3F w, final Vector3F v, final Vector3F u) {
 		return new Matrix44F(u.x, u.y, u.z, 0.0F, v.x, v.y, v.z, 0.0F, w.x, w.y, w.z, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F);
+	}
+	
+	/**
+	 * Returns a {@code Matrix44F} instance that is a rotation matrix along the X-axis.
+	 * <p>
+	 * If {@code angle}, is {@code null}, a {@code NullPointerException} will be thrown.
+	 * <p>
+	 * The layout looks like this:
+	 * <pre>
+	 * {@code
+	 * 1,   0,    0, 0
+	 * 0, cos, -sin, 0
+	 * 0, sin,  cos, 0
+	 * 0,   0,    0, 1
+	 * }
+	 * </pre>
+	 * 
+	 * @param angle an {@code AngleF} instance
+	 * @return a {@code Matrix44F} instance that is a rotation matrix along the X-axis
+	 * @throws NullPointerException thrown if, and only if, {@code angle} is {@code null}
+	 */
+	public static Matrix44F rotationX(final AngleF angle) {
+		return new Matrix44F(1.0F, 0.0F, 0.0F, 0.0F, 0.0F, cos(angle.radians), -sin(angle.radians), 0.0F, 0.0F, sin(angle.radians), cos(angle.radians), 0.0F, 0.0F, 0.0F, 0.0F, 1.0F);
+	}
+	
+	/**
+	 * Returns a {@code Matrix44F} instance that is a rotation matrix along the Y-axis.
+	 * <p>
+	 * If {@code angle}, is {@code null}, a {@code NullPointerException} will be thrown.
+	 * <p>
+	 * The layout looks like this:
+	 * <pre>
+	 * {@code
+	 *  cos, 0, sin, 0
+	 *    0, 1,   0, 0
+	 * -sin, 0, cos, 0
+	 *    0, 0,   0, 1
+	 * }
+	 * </pre>
+	 * 
+	 * @param angle an {@code AngleF} instance
+	 * @return a {@code Matrix44F} instance that is a rotation matrix along the Y-axis
+	 * @throws NullPointerException thrown if, and only if, {@code angle} is {@code null}
+	 */
+	public static Matrix44F rotationY(final AngleF angle) {
+		return new Matrix44F(cos(angle.radians), 0.0F, sin(angle.radians), 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, -sin(angle.radians), 0.0F, cos(angle.radians), 0.0F, 0.0F, 0.0F, 0.0F, 1.0F);
+	}
+	
+	/**
+	 * Returns a {@code Matrix44F} instance that is a rotation matrix along the Z-axis.
+	 * <p>
+	 * If {@code angle}, is {@code null}, a {@code NullPointerException} will be thrown.
+	 * <p>
+	 * The layout looks like this:
+	 * <pre>
+	 * {@code
+	 * cos, -sin, 0, 0
+	 * sin,  cos, 0, 0
+	 *   0,    0, 1, 0
+	 *   0,    0, 0, 1
+	 * }
+	 * </pre>
+	 * 
+	 * @param angle an {@code AngleF} instance
+	 * @return a {@code Matrix44F} instance that is a rotation matrix along the Z-axis
+	 * @throws NullPointerException thrown if, and only if, {@code angle} is {@code null}
+	 */
+	public static Matrix44F rotationZ(final AngleF angle) {
+		return new Matrix44F(cos(angle.radians), -sin(angle.radians), 0.0F, 0.0F, sin(angle.radians), cos(angle.radians), 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F);
 	}
 	
 	/**
