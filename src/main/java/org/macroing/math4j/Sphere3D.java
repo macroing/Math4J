@@ -136,7 +136,7 @@ public final class Sphere3D implements BoundingVolume3D, Shape3D {
 	 */
 	@Override
 	public Point2D calculateTextureCoordinates(final Ray3D ray, final double t) {
-		return Point2D.direction(ray.direction);
+		return Point2D.direction(calculateSurfaceNormal(ray, t));
 	}
 	
 	/**

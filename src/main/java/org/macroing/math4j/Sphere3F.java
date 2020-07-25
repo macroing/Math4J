@@ -172,7 +172,7 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 		}
 		
 		final Supplier<OrthoNormalBasis33F> orthoNormalBasisSupplier = () -> new OrthoNormalBasis33F(Vector3F.direction(this.center, ray.origin.add(ray.direction, t)).normalize());
-		final Supplier<Point2F> textureCoordinatesSupplier = () -> Point2F.direction(ray.direction);
+		final Supplier<Point2F> textureCoordinatesSupplier = () -> Point2F.direction(Vector3F.direction(this.center, ray.origin.add(ray.direction, t)).normalize());
 		final Supplier<Point3F> surfaceIntersectionPointSupplier = () -> ray.origin.add(ray.direction, t);
 		final Supplier<Vector3F> surfaceNormalSupplier = () -> Vector3F.direction(this.center, ray.origin.add(ray.direction, t)).normalize();
 		
@@ -191,7 +191,7 @@ public final class Sphere3F implements BoundingVolume3F, Shape3F {
 	 */
 	@Override
 	public Point2F calculateTextureCoordinates(final Ray3F ray, final float t) {
-		return Point2F.direction(ray.direction);
+		return Point2F.direction(calculateSurfaceNormal(ray, t));
 	}
 	
 	/**

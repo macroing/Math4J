@@ -1,3 +1,7 @@
+2020-07-25  Jörgen Lundgren  <joergen.lundgren@macroing.org>
+
+	* CHANGE:	The calculations of texture coordinates in the Sphere3D and Sphere3F classes were incorrect. They have been fixed.
+
 2020-07-24  Jörgen Lundgren  <joergen.lundgren@macroing.org>
 
 	* ADD:		Add an Intersection3F class.
