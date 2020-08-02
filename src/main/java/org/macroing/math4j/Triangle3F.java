@@ -592,7 +592,6 @@ public final class Triangle3F implements Shape3F {
 		return new Point3F(u1, v1, w1);
 	}
 	
-	@SuppressWarnings("unused")
 	private float doIntersectionT0(final Ray3F ray) {
 		final Point3F origin = ray.origin;
 		
