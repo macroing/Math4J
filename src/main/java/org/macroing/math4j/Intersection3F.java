@@ -47,37 +47,65 @@ public final class Intersection3F {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Returns the {@link OrthoNormalBasis33F} instance that is associated with this {@code Intersection3F} instance.
+	 * 
+	 * @return the {@code OrthoNormalBasis33F} instance that is associated with this {@code Intersection3F} instance
+	 */
 	public OrthoNormalBasis33F getOrthoNormalBasis() {
 		return this.orthoNormalBasis.get();
 	}
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Returns the {@link Point2F} instance that represents the texture coordinates that are associated with this {@code Intersection3F} instance.
+	 * 
+	 * @return the {@code Point2F} instance that represents the texture coordinates that are associated with this {@code Intersection3F} instance
+	 */
 	public Point2F getTextureCoordinates() {
 		return this.textureCoordinates.get();
 	}
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Returns the {@link Point3F} instance that represents the surface intersection point that is associated with this {@code Intersection3F} instance.
+	 * 
+	 * @return the {@code Point3F} instance that represents the surface intersection point that is associated with this {@code Intersection3F} instance
+	 */
 	public Point3F getSurfaceIntersectionPoint() {
 		return this.surfaceIntersectionPoint.get();
 	}
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Returns the {@link Ray3F} instance that is associated with this {@code Intersection3F} instance.
+	 * 
+	 * @return the {@code Ray3F} instance that is associated with this {@code Intersection3F} instance
+	 */
 	public Ray3F getRay() {
 		return this.ray;
 	}
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Returns the {@link Shape3F} instance that is associated with this {@code Intersection3F} instance.
+	 * 
+	 * @return the {@code Shape3F} instance that is associated with this {@code Intersection3F} instance
+	 */
 	public Shape3F getShape() {
 		return this.shape;
 	}
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Returns the {@link Vector3F} instance that represents the surface normal that is associated with this {@code Intersection3F} instance.
+	 * 
+	 * @return the {@code Vector3F} instance that represents the surface normal that is associated with this {@code Intersection3F} instance
+	 */
 	public Vector3F getSurfaceNormal() {
 		return this.surfaceNormal.get();
 	}
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Returns the parametric T that is associated with this {@code Intersection3F} instance.
+	 * 
+	 * @return the parametric T that is associated with this {@code Intersection3F} instance
+	 */
 	public float getT() {
 		return this.t;
 	}
