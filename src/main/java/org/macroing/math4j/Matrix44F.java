@@ -208,7 +208,7 @@ public final class Matrix44F {
 		final float element12 = (-this.element12 * l + this.element13 * k - this.element14 * j) * determinantReciprocal;
 		final float element13 = (+this.element42 * f - this.element43 * e + this.element44 * d) * determinantReciprocal;
 		final float element14 = (-this.element32 * f + this.element33 * e - this.element34 * d) * determinantReciprocal;
-		final float element21 = (-this.element21 * l + this.element22 * i - this.element24 * h) * determinantReciprocal;
+		final float element21 = (-this.element21 * l + this.element23 * i - this.element24 * h) * determinantReciprocal;
 		final float element22 = (+this.element11 * l - this.element13 * i + this.element14 * h) * determinantReciprocal;
 		final float element23 = (-this.element41 * f + this.element43 * c - this.element44 * b) * determinantReciprocal;
 		final float element24 = (+this.element31 * f - this.element33 * c + this.element34 * b) * determinantReciprocal;
