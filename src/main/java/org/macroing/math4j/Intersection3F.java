@@ -18,11 +18,17 @@
  */
 package org.macroing.math4j;
 
-import java.lang.reflect.Field;//TODO: Add Javadocs!
 import java.util.Objects;
 import java.util.function.Supplier;
 
-//TODO: Add Javadocs!
+/**
+ * An {@code Intersection3F} denotes an intersection between a {@link Ray3F} instance and a {@link Shape3F} instance.
+ * <p>
+ * This class can be considered immutable and thread-safe if, and only if, its associated {@code Shape3F} instance is.
+ * 
+ * @since 1.0.0
+ * @author J&#246;rgen Lundgren
+ */
 public final class Intersection3F {
 	private final LazyReference<OrthoNormalBasis33F> orthoNormalBasis;
 	private final LazyReference<Point2F> textureCoordinates;
@@ -34,7 +40,22 @@ public final class Intersection3F {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-//	TODO: Add Javadocs!
+	/**
+	 * Constructs a new {@code Intersection3F} instance.
+	 * <p>
+	 * If either {@code ray}, {@code shape}, {@code orthoNormalBasisSupplier}, {@code textureCoordinatesSupplier}, {@code surfaceIntersectionPointSupplier} or {@code surfaceNormalSupplier} are {@code null}, a {@code NullPointerException} will be
+	 * thrown.
+	 * 
+	 * @param ray the {@link Ray3F} instance that is associated with this {@code Intersection3F} instance
+	 * @param shape the {@link Shape3F} instance that is associated with this {@code Intersection3F} instance
+	 * @param t the parametric T value that is associated with this {@code Intersection3F} instance
+	 * @param orthoNormalBasisSupplier a {@code Supplier} of the {@link OrthoNormalBasis33F} instance that is associated with this {@code Intersection3F} instance
+	 * @param textureCoordinatesSupplier a {@code Supplier} of the {@link Point2F} instance that represents the texture coordinates and is associated with this {@code Intersection3F} instance
+	 * @param surfaceIntersectionPointSupplier a {@code Supplier} of the {@link Point3F} instance that represents the surface intersection point and is associated with this {@code Intersection3F} instance
+	 * @param surfaceNormalSupplier a {@code Supplier} of the {@link Vector3F} instance that represents the surface normal and is associated with this {@code Intersection3F} instance
+	 * @throws NullPointerException thrown if, and only if, either {@code ray}, {@code shape}, {@code orthoNormalBasisSupplier}, {@code textureCoordinatesSupplier}, {@code surfaceIntersectionPointSupplier} or {@code surfaceNormalSupplier} are
+	 *                              {@code null}
+	 */
 	public Intersection3F(final Ray3F ray, final Shape3F shape, final float t, final Supplier<OrthoNormalBasis33F> orthoNormalBasisSupplier, final Supplier<Point2F> textureCoordinatesSupplier, final Supplier<Point3F> surfaceIntersectionPointSupplier, final Supplier<Vector3F> surfaceNormalSupplier) {
 		this.ray = Objects.requireNonNull(ray, "ray == null");
 		this.shape = Objects.requireNonNull(shape, "shape == null");
