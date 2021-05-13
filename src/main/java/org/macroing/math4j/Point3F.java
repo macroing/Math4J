@@ -330,7 +330,7 @@ public final class Point3F {
 	 * @return a new {@code Point3F} instance with the smallest X-, Y- and Z-coordinate values
 	 */
 	public static Point3F minimum() {
-		return new Point3F(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+		return new Point3F(-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
 	}
 	
 	/**

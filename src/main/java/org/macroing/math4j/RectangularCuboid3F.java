@@ -121,8 +121,8 @@ public final class RectangularCuboid3F implements BoundingVolume3F, Shape3F {
 	 */
 	@Override
 	public Optional<Intersection3F> intersection(final Ray3F ray) {
-		float tMaximum = Float.MAX_VALUE;
-		float tMinimum = Float.MIN_VALUE;
+		float tMaximum = +Float.MAX_VALUE;
+		float tMinimum = -Float.MAX_VALUE;
 		
 		int sideIn = 0;
 //		int sideOut = 0;

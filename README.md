@@ -1,4 +1,4 @@
-Math4J v.0.0.5
+Math4J v.0.0.6
 ==============
 Math4J is a simple mathematics library for Java.
 
